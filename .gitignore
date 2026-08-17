@@ -1,0 +1,7 @@
+node_modules/
+
+# Corpus source de Lexique 3.83 : 25 Mo, retelechargeable a la demande.
+# Seuls les fichiers derives (data/) sont versionnes.
+.cache/
+
+.DS_Store

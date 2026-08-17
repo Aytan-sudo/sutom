@@ -1,0 +1,432 @@
+/* SUTOM — feuille de style unique. Theme sombre, une seule variante :
+   le jeu se joue surtout le soir et le contraste rouge/jaune/bleu est
+   directement lisible sur fond fonce. */
+
+:root {
+    --bg: #0d1117;
+    --panel: #161b26;
+    --text: #f2f5f9;
+    --muted: #98a2b3;
+    --border: #2a3242;
+
+    --blue: #0077c7;   /* lettre absente */
+    --red: #e7002a;    /* lettre bien placee */
+    --yellow: #ffbd00; /* lettre mal placee */
+
+    --radius: 10px;
+    --reveal: 320ms;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    /* Sur iPhone la barre d'adresse mange le bas de l'ecran : dvh suit la
+       hauteur reellement visible, la derniere rangee du clavier reste atteignable. */
+    min-height: 100dvh;
+    padding-bottom: env(safe-area-inset-bottom);
+    overscroll-behavior: none;
+}
+
+/* ----------------------------------------------------------- barre du haut */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    letter-spacing: 0.28em;
+    text-indent: 0.28em; /* compense l'interlettre pour recentrer le titre */
+    font-weight: 700;
+}
+
+.icon-button {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: grid;
+    place-items: center;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--muted);
+    font: inherit;
+    font-size: 1.1rem;
+    cursor: pointer;
+}
+
+.icon-button:hover {
+    color: var(--text);
+    border-color: var(--muted);
+}
+
+.icon-button svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: currentColor;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 0.5rem;
+}
+
+/* ---------------------------------------------------------------- grille */
+
+/* La grille occupe tout l'espace laisse par le clavier et s'y centre : sur un
+   grand ecran elle reste au milieu, sur un telephone elle se cale en haut sans
+   jamais pousser le clavier hors de l'ecran. */
+.board-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0;
+}
+
+.board {
+    display: grid;
+    gap: 6px;
+    /* La grille prend la largeur disponible, plafonnee pour qu'une partie de
+       6 lettres n'affiche pas des cases geantes sur ecran large. */
+    width: min(92vw, calc(var(--columns) * 4rem));
+}
+
+.row {
+    display: grid;
+    grid-template-columns: repeat(var(--columns), 1fr);
+    gap: 6px;
+}
+
+.cell {
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    font-size: clamp(1.1rem, 5vw, 1.9rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+.cell.filled {
+    border-color: var(--muted);
+}
+
+/* Lettre deja acquise, reportee automatiquement : visible mais en retrait,
+   pour qu'on ne la confonde pas avec ce qu'on vient de taper. */
+.cell.locked {
+    border-color: var(--border);
+    color: var(--muted);
+}
+
+.cell.absent,
+.cell.present,
+.cell.correct {
+    border-color: transparent;
+    color: #fff;
+}
+
+.cell.absent { background: var(--blue); }
+.cell.correct { background: var(--red); }
+
+/* Le jaune de Motus est un rond, pas un carre : le degrade evite un element
+   supplementaire dans chaque case. */
+.cell.present {
+    background: radial-gradient(circle at center, var(--yellow) 0 46%, var(--blue) 46.5% 100%);
+}
+
+.cell.revealing {
+    animation: reveal var(--reveal) ease both;
+}
+
+@keyframes reveal {
+    0% { transform: rotateX(-90deg); }
+    100% { transform: rotateX(0); }
+}
+
+.row.shake {
+    animation: shake 420ms;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-7px); }
+    40% { transform: translateX(7px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+
+/* --------------------------------------------------------------- message */
+
+.message {
+    margin: 0;
+    min-height: 1.5rem;
+    text-align: center;
+    font-size: 0.95rem;
+    color: var(--yellow);
+    opacity: 0;
+    transition: opacity 150ms;
+}
+
+.message.visible {
+    opacity: 1;
+}
+
+/* --------------------------------------------------------------- clavier */
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+    padding-bottom: 0.5rem;
+}
+
+.keyboard-row {
+    display: flex;
+    gap: 5px;
+    width: min(100%, 34rem);
+    justify-content: center;
+}
+
+.key {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 3.2rem;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
+    font-size: clamp(0.8rem, 3.4vw, 1rem);
+    font-weight: 600;
+    cursor: pointer;
+    /* Sans ca, un appui rapide repete sur mobile declenche le zoom du double-tap. */
+    touch-action: manipulation;
+}
+
+.key:active {
+    transform: translateY(1px);
+}
+
+.key-wide {
+    flex: 1.6 1 auto;
+    font-size: 0.75rem;
+}
+
+.key.absent { background: var(--blue); border-color: var(--blue); }
+.key.correct { background: var(--red); border-color: var(--red); }
+.key.present { background: var(--yellow); border-color: var(--yellow); color: #21150a; }
+
+/* ------------------------------------------------------------- dialogues */
+
+.dialog {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--panel);
+    color: var(--text);
+    padding: 1.5rem;
+    width: min(92vw, 26rem);
+    font-family: inherit;
+}
+
+.dialog::backdrop {
+    background: rgba(3, 6, 12, 0.72);
+}
+
+.dialog h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.35rem;
+}
+
+.dialog h3 {
+    margin: 1.25rem 0 0.5rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.dialog p {
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+    color: var(--muted);
+}
+
+.end-word {
+    color: var(--text);
+    font-size: 1.05rem;
+}
+
+.end-grid {
+    margin: 0.5rem 0 0;
+    font-family: inherit;
+    font-size: 1.35rem;
+    line-height: 1.25;
+    text-align: center;
+}
+
+.dialog-actions {
+    display: flex;
+    gap: 0.6rem;
+    justify-content: flex-end;
+    margin-top: 1.25rem;
+}
+
+.button {
+    padding: 0.6rem 1.1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.button:hover {
+    border-color: var(--muted);
+}
+
+.button-primary {
+    background: var(--red);
+    border-color: var(--red);
+}
+
+.button-danger {
+    color: var(--muted);
+}
+
+/* ------------------------------------------------------------ statistiques */
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-align: center;
+}
+
+.stats-summary strong {
+    display: block;
+    font-size: 1.5rem;
+}
+
+.stats-summary span {
+    font-size: 0.72rem;
+    color: var(--muted);
+}
+
+.distribution {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: none;
+}
+
+.distribution li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.distribution .bar {
+    background: var(--red);
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.15rem 0.4rem;
+    text-align: right;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+/* Une barre vide en rouge vif se lit comme un resultat : on la neutralise. */
+.distribution .bar.empty {
+    background: var(--border);
+    color: var(--muted);
+}
+
+/* -------------------------------------------------------------- regles */
+
+.rules {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    color: var(--muted);
+}
+
+.rules li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.sample {
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    font-weight: 700;
+    color: #fff;
+    flex: none;
+}
+
+.sample.correct { background: var(--red); }
+.sample.absent { background: var(--blue); }
+.sample.present {
+    background: radial-gradient(circle at center, var(--yellow) 0 46%, var(--blue) 46.5% 100%);
+}
+
+.credit {
+    font-size: 0.8rem;
+}
+
+.credit a {
+    color: var(--muted);
+}
+
+/* Certaines personnes ont le mal des transports avec les animations d'ecran :
+   on coupe tout mouvement, le jeu reste identique. */
+@media (prefers-reduced-motion: reduce) {
+    .cell.revealing,
+    .row.shake {
+        animation: none;
+    }
+}
+
+/* Ecrans courts (paysage sur telephone) : on comprime le clavier plutot que
+   de laisser la grille sortir de l'ecran. */
+@media (max-height: 640px) {
+    .key { height: 2.6rem; }
+    .topbar { padding: 0.4rem 1rem; }
+    .topbar h1 { font-size: 1.2rem; }
+}

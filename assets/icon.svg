@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="SUTOM">
+    <!-- Quatre cases aux couleurs du jeu : rouge (bien place), rond jaune
+         (mal place), bleu (absent). Aucun texte, donc aucune dependance a une
+         police lors de la conversion en PNG. -->
+    <rect width="512" height="512" rx="96" fill="#0d1117"/>
+    <g>
+        <rect x="76" y="76" width="164" height="164" rx="26" fill="#e7002a"/>
+        <rect x="272" y="76" width="164" height="164" rx="26" fill="#0077c7"/>
+        <circle cx="354" cy="158" r="60" fill="#ffbd00"/>
+        <rect x="76" y="272" width="164" height="164" rx="26" fill="#0077c7"/>
+        <rect x="272" y="272" width="164" height="164" rx="26" fill="#e7002a"/>
+    </g>
+</svg>

@@ -1,0 +1,61 @@
+# Mots jamais tires comme solution.
+#
+# Lexique 3.83 est construit sur des sous-titres de films : le vocabulaire
+# vulgaire y est tres frequent et remonte donc dans les mots courants. Ces mots
+# restent acceptes a la saisie (ils sont dans lexique-N.txt), ils ne sont
+# simplement jamais le mot a deviner. C'est le comportement de SUTOM.
+#
+# Une entree par ligne, en majuscules sans accent. Les lignes vides et celles
+# commencant par # sont ignorees.
+
+BAISEUR
+BORDEL
+BRANLE
+BRANLER
+BRANLETTE
+BRANLEUR
+CONNARD
+CONNASSE
+CONNERIE
+COUILLE
+COUILLON
+DECONNER
+DEGUEU
+DEGUEULER
+DEMERDER
+EJACULER
+EMMERDANT
+EMMERDE
+EMMERDER
+EMMERDEUR
+ENCULE
+ENCULER
+ENFOIRE
+FOUTAISE
+FOUTRE
+GOUINE
+MERDER
+MERDEUX
+MERDIER
+MERDIQUE
+NIQUER
+ORGASME
+PEDERASTE
+PETASSE
+PISSER
+PISSEUX
+PISSOU
+PROSTITUE
+PUTAIN
+SALAUD
+SALOPARD
+SALOPE
+SALOPERIE
+SPERME
+SUCEUR
+TAPETTE
+TESTICULE
+TROUDUC
+VAGINAL
+VIOLER
+VIOLEUR

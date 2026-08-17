@@ -1,0 +1,15 @@
+{
+    "name": "sutom",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Jeu de lettres francais facon SUTOM, statique et jouable hors ligne.",
+    "type": "module",
+    "scripts": {
+        "test": "node tests/test-engine.mjs && node tests/test-data.mjs && node tests/test-ui.mjs",
+        "serve": "python3 -m http.server 8765",
+        "build:dict": "node scripts/build-dictionary.mjs"
+    },
+    "devDependencies": {
+        "jsdom": "^26.0.0"
+    }
+}
