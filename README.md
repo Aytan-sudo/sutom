@@ -13,6 +13,17 @@ Site statique, sans build ni serveur, jouable hors ligne.
 - Rouge = bien placee, rond jaune = presente ailleurs, bleu = absente.
 - Les accents ne comptent pas : on tape `ete` pour *été*.
 
+## Partager une partie
+
+Le bouton **Partager** copie la grille en emojis accompagnee d'un lien de defi :
+qui l'ouvre cherche exactement le meme mot. C'est ce qui rend la grille
+comparable — sans lien, chacun tirerait un mot au hasard et les emojis ne
+signifieraient rien.
+
+Le mot est encode dans le fragment de l'URL (`#defi=...`), qui n'est jamais
+transmis au serveur. Ce n'est pas du chiffrement, juste de quoi ne pas lire la
+reponse dans la barre d'adresse.
+
 ## Developpement
 
 ```sh
@@ -32,6 +43,7 @@ le servir en HTTP, l'ouvrir en `file://` ne fonctionne pas.
 | `js/dictionary.js` | Chargement des listes, tirage du mot, validation des saisies. |
 | `js/storage.js` | Statistiques, partie en cours, mots deja vus (localStorage). |
 | `js/ui.js` | Rendu de la grille et du clavier. Ne connait pas les regles. |
+| `js/challenge.js` | Encodage du mot dans le lien de partage. |
 | `js/app.js` | Orchestration et evenements. |
 | `data/` | Listes de mots generees, decoupees par longueur. |
 | `sw.js` | Service worker : mise en cache pour le hors-ligne. |
@@ -82,3 +94,9 @@ npm test
 - `tests/test-engine.mjs` : regles de coloration, lettres en double, partie, reprise.
 - `tests/test-data.mjs` : coherence des fichiers de `data/`.
 - `tests/test-ui.mjs` : partie complete jouee dans jsdom, du clavier au dialogue de fin.
+- `tests/test-challenge.mjs` : encodage du lien de defi, et demarrage sur un lien recu.
+- `tests/test-challenge-fallback.mjs` : demarrage sur un lien de defi abime.
+
+`tests/harness.mjs` monte index.html dans jsdom. Un seul demarrage par
+processus : app.js lance sa partie a l'import, et un module n'est evalue qu'une
+fois — d'ou un fichier de test par scenario de demarrage.

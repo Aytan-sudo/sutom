@@ -8,6 +8,7 @@ import {
     loadRecent, pushRecent,
     hasSeenHelp, markHelpSeen
 } from './storage.js';
+import { buildLink, readChallenge } from './challenge.js';
 import * as ui from './ui.js';
 
 const SHARE_URL = 'https://aytan-sudo.github.io/sutom/';
@@ -56,10 +57,23 @@ function refreshInput() {
 
 // ------------------------------------------------------------------ partie
 
-async function startGame() {
+// `imposed` est le mot d'un lien de defi. S'il est illisible ou inconnu du
+// dictionnaire, on le signale et on tire un mot au hasard : mieux vaut une
+// partie normale qu'une page morte parce qu'un lien a ete tronque en route.
+async function startGame(imposed = null) {
     ui.showMessage('');
-    const length = randomLength();
-    const solution = await pickSolution(length, loadRecent());
+
+    let solution = imposed;
+    if (solution) {
+        await load(solution.length);
+        if (!isPlayable(solution, solution.length)) {
+            ui.showMessage('Lien de defi invalide, voici un mot au hasard');
+            solution = null;
+        }
+    }
+    if (!solution) {
+        solution = await pickSolution(randomLength(), loadRecent());
+    }
     pushRecent(solution);
 
     game = createGame(solution);
@@ -131,9 +145,12 @@ function finishGame() {
 
 // ------------------------------------------------------------------ partage
 
+// Le lien emporte le mot qu'on vient de jouer : sans lui, le destinataire
+// tomberait sur un tirage au hasard et la grille partagee ne signifierait rien.
 function shareText() {
     const result = game.status === 'won' ? `${game.attempts.length}/${MAX_ATTEMPTS}` : `X/${MAX_ATTEMPTS}`;
-    return `SUTOM ${result} — ${game.length} lettres\n\n${game.emojiGrid()}\n\n${SHARE_URL}`;
+    return `SUTOM ${result} — ${game.length} lettres\n\n${game.emojiGrid()}\n\n`
+        + `Meme mot, a toi de jouer :\n${buildLink(SHARE_URL, game.solution)}`;
 }
 
 async function share() {
@@ -155,11 +172,20 @@ async function share() {
 
 // ------------------------------------------------------------------ evenements
 
+// Passer a une partie au hasard efface le defi de l'URL : sinon le prochain
+// rechargement ramenerait le mot du lien alors qu'on est deja passe a autre chose.
+async function newRandomGame() {
+    if (window.location.hash) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+    await startGame();
+}
+
 function onKey(key) {
     if (!game) return;
     // Une fois la partie finie, Entree relance : c'est la sortie de secours
     // pour qui a ferme le dialogue de fin avec Echap.
-    if (key === 'ENTER') return game.isOver ? startGame() : submitWord();
+    if (key === 'ENTER') return game.isOver ? newRandomGame() : submitWord();
     if (busy || game.isOver) return; // revelation en cours ou partie finie
 
     if (key === 'BACKSPACE') eraseLetter();
@@ -195,7 +221,7 @@ function bindEvents() {
 
     document.getElementById('replay-button').addEventListener('click', async () => {
         ui.closeDialog(ui.el.endDialog);
-        await startGame();
+        await newRandomGame();
     });
     document.getElementById('share-button').addEventListener('click', share);
 
@@ -225,12 +251,35 @@ function bindEvents() {
 
 // ------------------------------------------------------------------ demarrage
 
+// Trois entrees possibles dans le jeu, dans cet ordre de priorite.
+async function boot() {
+    const challenge = readChallenge(window.location.hash);
+
+    if (challenge) {
+        // Recharger la page en plein defi doit reprendre la grille, pas la
+        // remettre a zero : on ne relance le defi que si la partie sauvegardee
+        // porte sur un autre mot.
+        const saved = loadGame();
+        if (saved && saved.solution === challenge && await resumeGame()) return;
+
+        await startGame(challenge);
+        // startGame a pu refuser le mot et en tirer un autre : dans ce cas il
+        // affiche deja son propre message, qu'il ne faut pas ecraser.
+        if (game.solution === challenge) {
+            ui.showMessage('Defi recu : trouve le mot de ton ami', 4000);
+        }
+        return;
+    }
+
+    if (!await resumeGame()) await startGame();
+}
+
 async function main() {
     ui.mount();
     bindEvents();
 
     try {
-        if (!await resumeGame()) await startGame();
+        await boot();
     } catch (e) {
         console.error(e);
         ui.showMessage('Dictionnaire indisponible. Rechargez la page.', 0);
