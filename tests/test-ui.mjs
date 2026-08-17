@@ -166,6 +166,29 @@ console.log('\nrejouer');
     check('nouveau mot different', next !== SOLUTION, next);
 }
 
+console.log('\nsortie par echap');
+{
+    // On termine cette seconde partie pour retrouver le dialogue de fin, puis
+    // on le ferme comme le ferait la touche Echap : sans porte de sortie, le
+    // joueur resterait devant une grille figee.
+    const solution = JSON.parse(window.localStorage.getItem('sutom.game')).solution;
+    for (const letter of solution.slice(1)) press(letter);
+    press('Enter');
+    await wait(1300);
+
+    const dialog = window.document.getElementById('end-dialog');
+    check('deuxieme partie terminee', dialog.open);
+    dialog.close();
+    check('consigne affichee',
+        window.document.getElementById('message').textContent === 'Entree pour une nouvelle partie');
+
+    press('Enter');
+    await wait(60);
+    check('entree relance une partie', rowStates(0) === 'vide vide vide vide vide vide', rowStates(0));
+    check('consigne effacee', window.document.getElementById('message').textContent === '');
+    check('deux victoires comptees', JSON.parse(window.localStorage.getItem('sutom.stats')).played === 2);
+}
+
 console.log(`\n${pass} reussis, ${fail} echecs\n`);
 window.close();
 process.exit(fail === 0 ? 0 : 1);

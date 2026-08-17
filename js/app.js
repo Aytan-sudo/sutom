@@ -157,7 +157,9 @@ async function share() {
 
 function onKey(key) {
     if (!game) return;
-    if (key === 'ENTER') return submitWord();
+    // Une fois la partie finie, Entree relance : c'est la sortie de secours
+    // pour qui a ferme le dialogue de fin avec Echap.
+    if (key === 'ENTER') return game.isOver ? startGame() : submitWord();
     if (busy || game.isOver) return; // revelation en cours ou partie finie
 
     if (key === 'BACKSPACE') eraseLetter();
@@ -196,6 +198,12 @@ function bindEvents() {
         await startGame();
     });
     document.getElementById('share-button').addEventListener('click', share);
+
+    // Echap ferme le dialogue de fin sans passer par « Rejouer » : sans ce
+    // rappel, on se retrouve devant une grille figee sans savoir quoi faire.
+    ui.el.endDialog.addEventListener('close', () => {
+        if (game && game.isOver) ui.showMessage('Entree pour une nouvelle partie', 0);
+    });
 
     document.getElementById('stats-button').addEventListener('click', () => {
         ui.renderStats(loadStats());
