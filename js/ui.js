@@ -7,10 +7,12 @@ import { CORRECT, PRESENT, ABSENT } from './engine.js';
 const KEYBOARD_ROWS = [
     ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
     ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
-    ['BACKSPACE', 'W', 'X', 'C', 'V', 'B', 'N', 'ENTER']
+    ['BACKSPACE', 'BLANK', 'W', 'X', 'C', 'V', 'B', 'N', 'ENTER']
 ];
 
-const KEY_LABELS = { ENTER: 'Entrer', BACKSPACE: '⌫' };
+const KEY_LABELS = { ENTER: 'Entrer', BACKSPACE: '⌫', BLANK: 'Vide' };
+const KEY_ARIA = { BACKSPACE: 'Effacer', BLANK: 'Laisser la case vide' };
+const WIDE_KEYS = ['BACKSPACE', 'ENTER'];
 const STATE_CLASS = { [CORRECT]: 'correct', [PRESENT]: 'present', [ABSENT]: 'absent' };
 
 // Duree entre deux cases lors de la revelation d'un essai (voir --reveal-step).
@@ -87,10 +89,14 @@ export function revealDelay(columns) {
 export function paintInput(rowIndex, letters, template) {
     if (rowIndex >= el.board.children.length) return;
     cellsOf(rowIndex).forEach((cell, i) => {
-        const letter = letters[i] || '';
+        // Une case peut porter une lettre, rien, ou la marque d'un trou laisse
+        // volontairement : seule une lettre s'ecrit, le trou se signale d'un trait.
+        const value = letters[i] || '';
+        const letter = /^[A-Z]$/.test(value) ? value : '';
         cell.textContent = letter;
         cell.className = 'cell';
         if (letter) cell.classList.add('filled');
+        else if (value) cell.classList.add('blank');
         if (letter && letter === template[i]) cell.classList.add('locked');
         cell.style.animationDelay = '';
     });
@@ -117,8 +123,11 @@ function buildKeyboard() {
             button.className = 'key';
             button.dataset.key = key;
             button.textContent = KEY_LABELS[key] || key;
-            if (key === 'ENTER' || key === 'BACKSPACE') button.classList.add('key-wide');
-            if (key === 'BACKSPACE') button.setAttribute('aria-label', 'Effacer');
+            // Les touches d'action portent un mot, pas une lettre : police plus
+            // petite pour qu'il tienne dans la case.
+            if (key.length > 1) button.classList.add('key-action');
+            if (WIDE_KEYS.includes(key)) button.classList.add('key-wide');
+            if (KEY_ARIA[key]) button.setAttribute('aria-label', KEY_ARIA[key]);
             row.append(button);
         }
         el.keyboard.append(row);

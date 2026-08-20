@@ -11,7 +11,10 @@ Site statique, sans build ni serveur, jouable hors ligne.
 - La premiere lettre est offerte et deja inscrite dans la grille : on tape la suite.
 - Chaque lettre bien placee reste affichee dans les essais suivants (regle Motus).
 - Une option rend ces lettres effacables : on sacrifie alors un essai pour
-  proposer un tout autre mot et sonder des lettres encore inconnues.
+  proposer un tout autre mot et sonder des lettres encore inconnues. La lettre
+  offerte reste en place dans tous les cas.
+- La touche `Vide` (ou la barre d'espace) saute une case, de quoi ecrire la fin
+  d'un mot pour le voir en place. Un essai ne part que si la ligne est pleine.
 - Rouge = bien placee, rond jaune = presente ailleurs, bleu = absente.
 - Les accents ne comptent pas : on tape `ete` pour *été*.
 

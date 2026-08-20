@@ -5,7 +5,7 @@
     "description": "Jeu de lettres francais facon SUTOM, statique et jouable hors ligne.",
     "type": "module",
     "scripts": {
-        "test": "node tests/test-engine.mjs && node tests/test-data.mjs && node tests/test-ui.mjs && node tests/test-challenge.mjs && node tests/test-challenge-fallback.mjs",
+        "test": "node tests/test-engine.mjs && node tests/test-data.mjs && node tests/test-ui.mjs && node tests/test-saisie.mjs && node tests/test-challenge.mjs && node tests/test-challenge-fallback.mjs",
         "serve": "python3 -m http.server 8765",
         "build:dict": "node scripts/build-dictionary.mjs"
     },

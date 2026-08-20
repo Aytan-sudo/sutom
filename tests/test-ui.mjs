@@ -138,41 +138,4 @@ console.log('\nsortie par echap');
     check('deux victoires comptees', storage('sutom.stats').played === 2);
 }
 
-console.log('\noption lettres modifiables');
-{
-    // La partie en cours vient de demarrer : seule la lettre offerte est posee.
-    const solution = storage('sutom.game').solution;
-    const autre = solution[0] === 'Z' ? 'W' : 'Z';
-    const settingsDialog = window.document.getElementById('settings-dialog');
-    const toggle = window.document.getElementById('option-free-input');
-    const setOption = value => {
-        click('settings-button');
-        toggle.checked = value;
-        toggle.dispatchEvent(new window.Event('change'));
-        settingsDialog.close();
-    };
-
-    check('option fermee par defaut', toggle.checked === false);
-
-    setOption(true);
-    check('option memorisee', storage('sutom.settings').freeInput === true);
-
-    press('Backspace');
-    check('lettre acquise effacable', cellsOf(0)[0].textContent === '');
-    press(autre);
-    press(autre);
-    check('remplacee par la lettre tapee', rowText(0) === autre + autre);
-    check('case plus verrouillee', !cellsOf(0)[0].classList.contains('locked'));
-
-    // Retour au mode normal : la lettre offerte revient, la frappe libre reste.
-    setOption(false);
-    check('option desactivee', storage('sutom.settings').freeInput === false);
-    check('lettre acquise restauree', rowText(0) === solution[0] + autre);
-    check('case reverrouillee', cellsOf(0)[0].classList.contains('locked'));
-
-    press('Backspace');
-    press('Backspace');
-    check('lettre acquise de nouveau protegee', rowText(0) === solution[0]);
-}
-
 report();

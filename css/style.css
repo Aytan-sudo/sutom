@@ -155,6 +155,16 @@ main {
     color: var(--muted);
 }
 
+/* Case sautee volontairement : un simple trait dit qu'on est passe devant sans
+   rien y mettre, ce qu'une case vide ne saurait exprimer. */
+.cell.blank::after {
+    content: '';
+    width: 38%;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border);
+}
+
 .cell.absent,
 .cell.present,
 .cell.correct {
@@ -247,7 +257,12 @@ main {
 
 .key-wide {
     flex: 1.6 1 auto;
-    font-size: 0.75rem;
+}
+
+/* Touches libellees en toutes lettres : la police suit la largeur de l'ecran,
+   sinon « Entrer » deborde de sa case sur un telephone etroit. */
+.key-action {
+    font-size: clamp(0.62rem, 2.6vw, 0.8rem);
 }
 
 .key.absent { background: var(--blue); border-color: var(--blue); }

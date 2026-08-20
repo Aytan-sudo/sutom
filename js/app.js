@@ -23,6 +23,12 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // ------------------------------------------------------------------ saisie
 
+// Case laissee vide volontairement : elle occupe sa position sans porter de
+// lettre, ce qui permet d'ecrire la fin d'un mot sans en connaitre le debut.
+// Un essai ne part que si toutes les cases portent une lettre, ces trous
+// servent donc a regarder, pas a proposer.
+const BLANK = '\u00b7';
+
 // La ligne en cours part des lettres deja acquises. Par defaut elles sont
 // verrouillees et la frappe ne remplit que les cases encore inconnues ; avec
 // l'option « lettres modifiables » elles restent inscrites mais s'effacent
@@ -32,19 +38,30 @@ function resetInput() {
     input = game.template();
 }
 
-// Une case est libre si le jeu ne l'a pas offerte, ou si l'option leve le verrou.
+// Une case est libre si le jeu ne l'a pas offerte, ou si l'option leve le
+// verrou. La lettre offerte fait exception : c'est le point de depart de la
+// partie, elle reste en place quelle que soit l'option.
 function editable(i, template) {
+    if (i === 0) return false;
     return settings.freeInput || template[i] === null;
 }
 
-function typeLetter(letter) {
-    const template = game.template();
+// Premiere case encore libre, de gauche a droite : c'est la que va la frappe.
+function nextFree(template) {
     for (let i = 0; i < game.length; i++) {
-        if (!input[i] && editable(i, template)) {
-            input[i] = letter;
-            return;
-        }
+        if (!input[i] && editable(i, template)) return i;
     }
+    return -1;
+}
+
+function typeLetter(letter) {
+    const i = nextFree(game.template());
+    if (i >= 0) input[i] = letter;
+}
+
+function skipCell() {
+    const i = nextFree(game.template());
+    if (i >= 0) input[i] = BLANK;
 }
 
 function eraseLetter() {
@@ -71,8 +88,10 @@ function applySettings() {
     refreshInput();
 }
 
+// Les trous ne comptent pas : le mot rendu est plus court que la grille, ce
+// qui suffit a faire refuser l'essai comme incomplet.
 function currentWord() {
-    return input.map(letter => letter || '').join('');
+    return input.map(letter => (letter && letter !== BLANK ? letter : '')).join('');
 }
 
 function refreshInput() {
@@ -213,6 +232,7 @@ function onKey(key) {
     if (busy || game.isOver) return; // revelation en cours ou partie finie
 
     if (key === 'BACKSPACE') eraseLetter();
+    else if (key === 'BLANK') skipCell();
     else typeLetter(key);
     refreshInput();
 }
@@ -237,6 +257,11 @@ function bindEvents() {
         } else if (event.key === 'Backspace') {
             event.preventDefault();
             onKey('BACKSPACE');
+        } else if (event.key === ' ') {
+            // La barre d'espace saute une case. preventDefault evite au passage
+            // qu'elle reactive la derniere touche cliquee, qui a garde le focus.
+            event.preventDefault();
+            onKey('BLANK');
         } else if (event.key.length === 1) {
             const letter = normalize(event.key);
             if (letter.length === 1) onKey(letter);
