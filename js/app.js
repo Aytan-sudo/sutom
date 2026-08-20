@@ -4,6 +4,7 @@ import { createGame, restoreGame, MAX_ATTEMPTS, normalize } from './engine.js';
 import { load, pickSolution, isPlayable, randomLength } from './dictionary.js';
 import {
     loadStats, recordGame, resetStats,
+    loadSettings, saveSettings,
     loadGame, saveGame, clearGame,
     loadRecent, pushRecent,
     hasSeenHelp, markHelpSeen
@@ -14,6 +15,7 @@ import * as ui from './ui.js';
 const SHARE_URL = 'https://aytan-sudo.github.io/sutom/';
 
 let game = null;
+let settings = loadSettings();
 let input = [];
 let busy = false; // vrai pendant la revelation d'un essai : on ignore la saisie
 
@@ -21,16 +23,24 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // ------------------------------------------------------------------ saisie
 
-// La ligne en cours part des lettres deja acquises : elles sont verrouillees,
-// la frappe ne remplit que les cases encore inconnues.
+// La ligne en cours part des lettres deja acquises. Par defaut elles sont
+// verrouillees et la frappe ne remplit que les cases encore inconnues ; avec
+// l'option « lettres modifiables » elles restent inscrites mais s'effacent
+// comme les autres, ce qui permet de sacrifier un essai pour sonder des
+// lettres qu'un mot contraint ne laisserait jamais tester.
 function resetInput() {
     input = game.template();
+}
+
+// Une case est libre si le jeu ne l'a pas offerte, ou si l'option leve le verrou.
+function editable(i, template) {
+    return settings.freeInput || template[i] === null;
 }
 
 function typeLetter(letter) {
     const template = game.template();
     for (let i = 0; i < game.length; i++) {
-        if (template[i] === null && !input[i]) {
+        if (!input[i] && editable(i, template)) {
             input[i] = letter;
             return;
         }
@@ -40,11 +50,25 @@ function typeLetter(letter) {
 function eraseLetter() {
     const template = game.template();
     for (let i = game.length - 1; i >= 0; i--) {
-        if (template[i] === null && input[i]) {
+        if (input[i] && editable(i, template)) {
             input[i] = null;
             return;
         }
     }
+}
+
+// Changer d'option en pleine ligne ne doit pas escamoter ce qui est tape : on
+// se contente de remettre les lettres acquises quand le verrou revient, sinon
+// la ligne resterait trouee alors que la saisie ne peut plus les rejoindre.
+function applySettings() {
+    ui.renderSettings(settings);
+    if (settings.freeInput || !game || game.isOver) return;
+
+    const template = game.template();
+    template.forEach((letter, i) => {
+        if (letter !== null) input[i] = letter;
+    });
+    refreshInput();
 }
 
 function currentWord() {
@@ -238,6 +262,14 @@ function bindEvents() {
     document.getElementById('help-button').addEventListener('click', () => {
         ui.openDialog(ui.el.helpDialog);
     });
+    document.getElementById('settings-button').addEventListener('click', () => {
+        ui.renderSettings(settings);
+        ui.openDialog(ui.el.settingsDialog);
+    });
+    ui.el.freeInput.addEventListener('change', event => {
+        settings = saveSettings({ ...settings, freeInput: event.target.checked });
+        applySettings();
+    });
     document.getElementById('reset-stats').addEventListener('click', () => {
         if (confirm('Effacer definitivement les statistiques ?')) {
             ui.renderStats(resetStats());
@@ -277,6 +309,7 @@ async function boot() {
 async function main() {
     ui.mount();
     bindEvents();
+    ui.renderSettings(settings);
 
     try {
         await boot();

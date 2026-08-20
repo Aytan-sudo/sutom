@@ -50,6 +50,19 @@ body {
     border-bottom: 1px solid var(--border);
 }
 
+/* Deux groupes de meme largeur de part et d'autre : le titre reste centre,
+   qu'il y ait un bouton d'un cote et deux de l'autre. */
+.topbar-side {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.topbar-side:last-of-type {
+    justify-content: flex-end;
+}
+
 .topbar h1 {
     margin: 0;
     font-size: 1.5rem;
@@ -370,6 +383,37 @@ main {
 /* Une barre vide en rouge vif se lit comme un resultat : on la neutralise. */
 .distribution .bar.empty {
     background: var(--border);
+    color: var(--muted);
+}
+
+/* -------------------------------------------------------------- options */
+
+.option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
+    cursor: pointer;
+}
+
+.option input {
+    flex: none;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0.15rem 0 0;
+    accent-color: var(--red);
+    cursor: pointer;
+}
+
+.option strong {
+    display: block;
+    font-size: 0.95rem;
+}
+
+.option small {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
     color: var(--muted);
 }
 

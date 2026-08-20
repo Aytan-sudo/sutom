@@ -10,6 +10,8 @@ Site statique, sans build ni serveur, jouable hors ligne.
 - La longueur du mot change a chaque partie, entre 6 et 9 lettres.
 - La premiere lettre est offerte et deja inscrite dans la grille : on tape la suite.
 - Chaque lettre bien placee reste affichee dans les essais suivants (regle Motus).
+- Une option rend ces lettres effacables : on sacrifie alors un essai pour
+  proposer un tout autre mot et sonder des lettres encore inconnues.
 - Rouge = bien placee, rond jaune = presente ailleurs, bleu = absente.
 - Les accents ne comptent pas : on tape `ete` pour *été*.
 
@@ -41,7 +43,7 @@ le servir en HTTP, l'ouvrir en `file://` ne fonctionne pas.
 | --- | --- |
 | `js/engine.js` | Les regles. Aucune dependance au DOM ni au reseau, donc testable sous Node. |
 | `js/dictionary.js` | Chargement des listes, tirage du mot, validation des saisies. |
-| `js/storage.js` | Statistiques, partie en cours, mots deja vus (localStorage). |
+| `js/storage.js` | Statistiques, options, partie en cours, mots deja vus (localStorage). |
 | `js/ui.js` | Rendu de la grille et du clavier. Ne connait pas les regles. |
 | `js/challenge.js` | Encodage du mot dans le lien de partage. |
 | `js/app.js` | Orchestration et evenements. |

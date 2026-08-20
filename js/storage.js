@@ -9,6 +9,7 @@ const KEY_STATS = 'sutom.stats';
 const KEY_GAME = 'sutom.game';
 const KEY_RECENT = 'sutom.recent';
 const KEY_HELP_SEEN = 'sutom.help-seen';
+const KEY_SETTINGS = 'sutom.settings';
 const RECENT_MAX = 60; // ~3 % du stock d'une longueur : evite les redites proches
 
 const memory = new Map();
@@ -48,6 +49,26 @@ function remove(key) {
         if (available) localStorage.removeItem(key);
     } catch (e) { /* rien a faire */ }
     memory.delete(key);
+}
+
+// Options du joueur. Elles se fusionnent avec les valeurs par defaut a la
+// lecture : ajouter une option plus tard ne casse pas une preference deja
+// enregistree, et une valeur inconnue ne laisse jamais un champ indefini.
+export function defaultSettings() {
+    return {
+        freeInput: false // effacer/remplacer les lettres deja trouvees
+    };
+}
+
+export function loadSettings() {
+    const saved = read(KEY_SETTINGS, null);
+    if (!saved || typeof saved !== 'object') return defaultSettings();
+    return { ...defaultSettings(), ...saved };
+}
+
+export function saveSettings(settings) {
+    write(KEY_SETTINGS, settings);
+    return settings;
 }
 
 export function emptyStats() {

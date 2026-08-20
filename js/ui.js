@@ -7,7 +7,7 @@ import { CORRECT, PRESENT, ABSENT } from './engine.js';
 const KEYBOARD_ROWS = [
     ['A', 'Z', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
     ['Q', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M'],
-    ['ENTER', 'W', 'X', 'C', 'V', 'B', 'N', 'BACKSPACE']
+    ['BACKSPACE', 'W', 'X', 'C', 'V', 'B', 'N', 'ENTER']
 ];
 
 const KEY_LABELS = { ENTER: 'Entrer', BACKSPACE: '⌫' };
@@ -28,6 +28,8 @@ export function mount() {
     el.endWord = document.getElementById('end-word');
     el.endGrid = document.getElementById('end-grid');
     el.statsDialog = document.getElementById('stats-dialog');
+    el.settingsDialog = document.getElementById('settings-dialog');
+    el.freeInput = document.getElementById('option-free-input');
     el.helpDialog = document.getElementById('help-dialog');
     buildKeyboard();
 }
@@ -78,6 +80,10 @@ export function revealDelay(columns) {
 
 // Dessine la saisie en cours. `template` porte les lettres acquises : elles
 // s'affichent en retrait pour que l'on voie ce qui est deja verrouille.
+//
+// En mode « lettres modifiables », une case acquise peut avoir ete effacee ou
+// remplacee : elle ne porte alors plus la teinte du verrou, sinon on croirait
+// que la lettre tapee vient du jeu.
 export function paintInput(rowIndex, letters, template) {
     if (rowIndex >= el.board.children.length) return;
     cellsOf(rowIndex).forEach((cell, i) => {
@@ -85,7 +91,7 @@ export function paintInput(rowIndex, letters, template) {
         cell.textContent = letter;
         cell.className = 'cell';
         if (letter) cell.classList.add('filled');
-        if (template[i] !== null) cell.classList.add('locked');
+        if (letter && letter === template[i]) cell.classList.add('locked');
         cell.style.animationDelay = '';
     });
 }
@@ -160,6 +166,10 @@ export function showEnd(game, won) {
         : `le mot etait <strong>${game.solution}</strong>`;
     el.endGrid.textContent = game.emojiGrid();
     openDialog(el.endDialog);
+}
+
+export function renderSettings(settings) {
+    el.freeInput.checked = settings.freeInput === true;
 }
 
 export function renderStats(stats) {
