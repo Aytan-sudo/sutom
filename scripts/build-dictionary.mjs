@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-// Genere les fichiers de data/ a partir de Lexique 3.83 (http://www.lexique.org).
+// Génère les fichiers de data/ à partir de Lexique 3.83 (http://www.lexique.org).
 //
 // Deux jeux de fichiers, un par longueur de mot :
-//   - lexique-N.txt   : mots acceptes en saisie (toutes les formes flechies)
-//   - solutions-N.txt : mots a deviner (noms, adjectifs et infinitifs courants)
+//   - lexique-N.txt   : mots acceptés en saisie (toutes les formes fléchies)
+//   - solutions-N.txt : mots à deviner (noms, adjectifs et infinitifs courants)
 //
-// Les fichiers produits sont commites : le site n'a besoin d'aucun build.
+// Les fichiers produits sont commités : le site n'a besoin d'aucun build.
 //
 //   node scripts/build-dictionary.mjs [--source .cache/Lexique383.tsv] [--stats]
 
@@ -18,18 +18,18 @@ const DATA_DIR = join(ROOT, 'data');
 const MIN_LENGTH = 6;
 const MAX_LENGTH = 9;
 
-// Frequence minimale (occurrences par million) pour qu'un mot soit une solution.
-// A 1.5 on obtient ~2000 mots par longueur : assez pour ne pas tourner en rond,
+// Fréquence minimale (occurrences par million) pour qu'un mot soit une solution.
+// À 1.5 on obtient ~2000 mots par longueur : assez pour ne pas tourner en rond,
 // assez peu pour que le mot reste devinable.
 const MIN_FREQUENCY = 1.5;
 
-// Seules ces categories font de bonnes solutions. Les verbes n'entrent que par
-// leur infinitif (islem), pas par leurs formes conjuguees.
+// Seules ces catégories font de bonnes solutions. Les verbes n'entrent que par
+// leur infinitif (islem), pas par leurs formes conjuguées.
 const SOLUTION_CATEGORIES = new Set(['NOM', 'ADJ', 'VER']);
 
 // Majuscules sans accent, comme dans la grille : ete -> ETE, ca -> CA, oeuf -> OEUF.
 // Retourne '' si le mot contient autre chose que des lettres (trait d'union,
-// apostrophe, espace, chiffre) : ces mots-la sont hors-jeu.
+// apostrophe, espace, chiffre) : ces mots-là sont hors-jeu.
 export function normalize(word) {
     const plain = word
         .normalize('NFD')
@@ -60,7 +60,7 @@ function findSource(path) {
     const found = candidates.find(c => existsSync(c));
     if (!found) {
         console.error(
-            'Lexique383.tsv introuvable. Telechargez-le puis relancez :\n' +
+            'Lexique383.tsv introuvable. Téléchargez-le puis relancez :\n' +
             '  mkdir -p .cache && curl -o .cache/Lexique383.tsv \\\n' +
             '      http://www.lexique.org/databases/Lexique383/Lexique383.tsv\n' +
             '  npm run build:dict'
@@ -70,7 +70,7 @@ function findSource(path) {
     return found;
 }
 
-// Mots acceptes a la saisie mais jamais tires comme solution (voir le fichier
+// Mots acceptés à la saisie mais jamais tirés comme solution (voir le fichier
 // pour le pourquoi : le corpus vient de sous-titres de films).
 function readExclusions() {
     const path = join(ROOT, 'scripts', 'mots-exclus.txt');
@@ -83,7 +83,7 @@ function readExclusions() {
 }
 
 // Un mot fait une bonne solution s'il est courant, dans sa forme de base, et
-// commun. On ecarte les pluriels (« CHATS » se devine mal) et les noms propres,
+// commun. On écarte les pluriels (« CHATS » se devine mal) et les noms propres,
 // que Lexique laisse avec leur majuscule initiale.
 function isSolution(entry) {
     if (!SOLUTION_CATEGORIES.has(entry.cgram)) return false;
@@ -160,7 +160,7 @@ function main() {
             String(nbLexicon).padStart(9)
         );
     }
-    if (args.stats) console.log('\n(--stats : aucun fichier ecrit)');
+    if (args.stats) console.log('\n(--stats : aucun fichier écrit)');
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) main();

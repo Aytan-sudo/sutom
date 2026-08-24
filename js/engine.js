@@ -1,8 +1,8 @@
-// Moteur du jeu : regles pures, aucune dependance au DOM ni au reseau.
+// Moteur du jeu : règles pures, aucune dépendance au DOM ni au réseau.
 // Tout ce qui est ici tourne tel quel sous Node, donc se teste sans navigateur.
 
-export const CORRECT = 'correct'; // bien place    -> rouge
-export const PRESENT = 'present'; // mal place     -> jaune
+export const CORRECT = 'correct'; // bien placé    -> rouge
+export const PRESENT = 'present'; // mal placé     -> jaune
 export const ABSENT = 'absent';   // pas dans le mot -> bleu
 
 export const MAX_ATTEMPTS = 6;
@@ -16,8 +16,8 @@ const EMOJI = {
 };
 
 // Majuscules sans accent : c'est la seule forme que le moteur manipule.
-// Doit rester identique a la normalisation de scripts/build-dictionary.mjs,
-// sinon un mot du dictionnaire pourrait ne plus correspondre a la saisie.
+// Doit rester identique à la normalisation de scripts/build-dictionary.mjs,
+// sinon un mot du dictionnaire pourrait ne plus correspondre à la saisie.
 export function normalize(word) {
     return word
         .normalize('NFD')
@@ -28,11 +28,11 @@ export function normalize(word) {
         .replace(/[^A-Z]/g, '');
 }
 
-// Compare une proposition au mot cache et renvoie un statut par lettre.
+// Compare une proposition au mot caché et renvoie un statut par lettre.
 //
-// Le piege classique, ce sont les lettres en double : dans SANTE, un S de trop
-// dans la proposition ne doit pas s'allumer en jaune sous pretexte qu'il y a
-// « un S quelque part ». On compte donc d'abord les lettres consommees par les
+// Le piège classique, ce sont les lettres en double : dans SANTE, un S de trop
+// dans la proposition ne doit pas s'allumer en jaune sous prétexte qu'il y a
+// « un S quelque part ». On compte donc d'abord les lettres consommées par les
 // rouges, et les jaunes se servent uniquement dans ce qui reste.
 export function compare(guess, solution) {
     if (guess.length !== solution.length) {
@@ -62,9 +62,9 @@ export function compare(guess, solution) {
     return marks;
 }
 
-// Les lettres acquises, dans l'ordre du mot : la premiere lettre est offerte
-// des le depart (regle Motus) et chaque rouge trouve reste affiche ensuite.
-// Les cases non trouvees valent null.
+// Les lettres acquises, dans l'ordre du mot : la première lettre est offerte
+// dès le départ (règle Motus) et chaque rouge trouvé reste affiché ensuite.
+// Les cases non trouvées valent null.
 export function buildTemplate(solution, attempts) {
     const template = new Array(solution.length).fill(null);
     template[0] = solution[0];
@@ -76,7 +76,7 @@ export function buildTemplate(solution, attempts) {
     return template;
 }
 
-// Etat le plus favorable connu pour chaque lettre, pour colorer le clavier.
+// État le plus favorable connu pour chaque lettre, pour colorer le clavier.
 export function letterStates(attempts) {
     const rank = { [ABSENT]: 0, [PRESENT]: 1, [CORRECT]: 2 };
     const states = new Map();
@@ -98,8 +98,8 @@ export function emojiGrid(attempts) {
         .join('\n');
 }
 
-// Une partie. L'objet est mutable et se serialise tel quel (toJSON) : c'est ce
-// qui permet de retrouver sa grille en cours apres un rechargement de page.
+// Une partie. L'objet est mutable et se sérialise tel quel (toJSON) : c'est ce
+// qui permet de retrouver sa grille en cours après un rechargement de page.
 export function createGame(solution, { maxAttempts = MAX_ATTEMPTS } = {}) {
     const word = normalize(solution);
     if (word.length < MIN_LENGTH || word.length > MAX_LENGTH) {
@@ -121,11 +121,11 @@ export function createGame(solution, { maxAttempts = MAX_ATTEMPTS } = {}) {
             return this.maxAttempts - this.attempts.length;
         },
 
-        // Enregistre une proposition. Le mot est suppose deja valide (bonne
-        // longueur, present au dictionnaire) : c'est l'appelant qui filtre,
-        // pour que le moteur n'ait pas a connaitre le dictionnaire.
+        // Enregistre une proposition. Le mot est supposé déjà valide (bonne
+        // longueur, présent au dictionnaire) : c'est l'appelant qui filtre,
+        // pour que le moteur n'ait pas à connaître le dictionnaire.
         submit(guess) {
-            if (this.isOver) throw new Error('partie terminee');
+            if (this.isOver) throw new Error('partie terminée');
             const attempt = { word: normalize(guess), marks: null };
             attempt.marks = compare(attempt.word, this.solution);
             this.attempts.push(attempt);
@@ -159,9 +159,9 @@ export function createGame(solution, { maxAttempts = MAX_ATTEMPTS } = {}) {
     };
 }
 
-// Reconstruit une partie a partir d'un toJSON(). On rejoue les propositions au
-// lieu de faire confiance aux marques stockees : si les regles changent, une
-// partie sauvegardee se recalcule au lieu d'afficher d'anciennes couleurs.
+// Reconstruit une partie à partir d'un toJSON(). On rejoue les propositions au
+// lieu de faire confiance aux marques stockées : si les règles changent, une
+// partie sauvegardée se recalcule au lieu d'afficher d'anciennes couleurs.
 export function restoreGame(data) {
     if (!data || typeof data.solution !== 'string') return null;
     try {

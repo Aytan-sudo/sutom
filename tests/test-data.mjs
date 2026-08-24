@@ -1,5 +1,5 @@
-// Verifie les fichiers de data/. Ils sont generes puis commites : un test les
-// relit tels que le navigateur les recevra, pour qu'une regeneration ratee ne
+// Vérifie les fichiers de data/. Ils sont générés puis commités : un test les
+// relit tels que le navigateur les recevra, pour qu'une régénération ratée ne
 // parte pas en production.
 
 import { readFileSync } from 'node:fs';
@@ -13,7 +13,7 @@ let pass = 0, fail = 0;
 
 function check(label, condition, detail = '') {
     if (condition) { pass++; console.log(`  OK    ${label}`); }
-    else { fail++; console.log(`  ECHEC ${label} ${detail}`); }
+    else { fail++; console.log(`  ÉCHEC ${label} ${detail}`); }
 }
 
 function readWords(name) {
@@ -38,21 +38,21 @@ for (let n = MIN_LENGTH; n <= MAX_LENGTH; n++) {
     check('lexique fourni', lexicon.length > solutions.length, `(${lexicon.length})`);
 
     const badShape = lexicon.find(word => !/^[A-Z]+$/.test(word) || word.length !== n);
-    check('lexique : majuscules non accentuees, bonne longueur', badShape === undefined, badShape || '');
+    check('lexique : majuscules non accentuées, bonne longueur', badShape === undefined, badShape || '');
 
     const badSolution = solutions.find(word => !/^[A-Z]+$/.test(word) || word.length !== n);
-    check('solutions : majuscules non accentuees, bonne longueur', badSolution === undefined, badSolution || '');
+    check('solutions : majuscules non accentuées, bonne longueur', badSolution === undefined, badSolution || '');
 
-    // Sans cette garantie, le mot a deviner pourrait etre refuse a la saisie.
+    // Sans cette garantie, le mot à deviner pourrait être refusé à la saisie.
     const orphan = solutions.find(word => !lexiconSet.has(word));
-    check('toute solution est acceptee a la saisie', orphan === undefined, orphan || '');
+    check('toute solution est acceptée à la saisie', orphan === undefined, orphan || '');
 
     check('lexique sans doublon', lexiconSet.size === lexicon.length);
-    check('lexique trie', lexicon.every((word, i) => i === 0 || lexicon[i - 1] < word));
+    check('lexique trié', lexicon.every((word, i) => i === 0 || lexicon[i - 1] < word));
 
     const banned = solutions.find(word => excluded.has(word));
     check('aucun mot exclu parmi les solutions', banned === undefined, banned || '');
 }
 
-console.log(`\n${pass} reussis, ${fail} echecs\n`);
+console.log(`\n${pass} réussis, ${fail} échecs\n`);
 process.exit(fail === 0 ? 0 : 1);

@@ -1,7 +1,7 @@
 {
     "name": "SUTOM — le jeu de mots",
     "short_name": "SUTOM",
-    "description": "Devinez le mot cache en six essais. Jeu de lettres francais, jouable hors ligne.",
+    "description": "Devinez le mot caché en six essais. Jeu de lettres français, jouable hors ligne.",
     "lang": "fr",
     "start_url": "./",
     "scope": "./",

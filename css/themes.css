@@ -1,0 +1,136 @@
+/* Les palettes, et rien d'autre : toutes les couleurs du jeu vivent ici.
+   Le reste de la feuille de style ne connaît que ces variables.
+
+   Le triptyque du plateau télé — rouge bien placée, rond jaune mal placée,
+   bleu absente — est la langue du jeu : il survit dans chaque palette. Ce qui
+   change, c'est le studio autour, et la teinte exacte des trois couleurs, qui
+   se rabat sur les fonds clairs pour rester lisible.
+
+   Chaque palette doit définir les douze variables ci-dessous : une seule
+   oubliée ne planterait pas, elle laisserait une couleur de la palette
+   précédente au milieu d'un thème — un test le vérifie. */
+
+/* Les palettes ne s'appliquent qu'à la racine : sans le `html`, le sélecteur
+   attraperait aussi les pastilles du choix de palette, qui portent le même
+   attribut — chacune s'habillerait alors de ses propres couleurs, et les
+   claires deviendraient illisibles sur un fond sombre. Seule la rondelle de
+   la pastille montre le triptyque ; son libellé suit le thème affiché. */
+:root,
+html[data-theme="plateau"] {
+    color-scheme: dark;
+
+    --bg: #0d1117;         /* le fond du studio */
+    --panel: #161b26;      /* dialogues et touches */
+    --text: #f2f5f9;
+    --muted: #98a2b3;      /* textes secondaires, bordures actives */
+    --border: #2a3242;
+
+    --red: #e7002a;        /* lettre bien placée */
+    --yellow: #ffbd00;     /* lettre mal placée */
+    --blue: #0077c7;       /* lettre absente */
+
+    --warn: #ffbd00;       /* les messages passagers, sur le fond */
+    --on-color: #fff;      /* texte posé sur rouge ou bleu */
+    --on-yellow: #21150a;  /* texte posé sur le jaune */
+    --backdrop: rgba(3, 6, 12, 0.72);
+}
+
+/* Crème et encre : la grille de mots croisés du matin. Les trois couleurs
+   descendent vers le grenat, la moutarde et l'encre — les teintes télé, sur
+   un fond clair, éblouissent. */
+html[data-theme="papier"] {
+    color-scheme: light;
+
+    --bg: #f4ecdc;
+    --panel: #fdf8ee;
+    --text: #2f2a22;
+    --muted: #7a6f5f;
+    --border: #ddd0b8;
+
+    --red: #b8253c;
+    --yellow: #e0a419;
+    --blue: #2f5f96;
+
+    --warn: #a8531a;
+    --on-color: #fff8ec;
+    --on-yellow: #33240a;
+    --backdrop: rgba(58, 46, 30, 0.5);
+}
+
+/* Le tableau vert de l'école, et trois craies grasses. Les couleurs sont
+   poudrées, donc claires : c'est le texte posé dessus qui devient sombre. */
+html[data-theme="craie"] {
+    color-scheme: dark;
+
+    --bg: #1b2420;
+    --panel: #24302b;
+    --text: #eef2ee;
+    --muted: #9db0a5;
+    --border: #3a4a42;
+
+    --red: #e0645c;
+    --yellow: #f0cf7a;
+    --blue: #6fa8c4;
+
+    --warn: #f0cf7a;
+    --on-color: #16201c;
+    --on-yellow: #2b2410;
+    --backdrop: rgba(8, 14, 11, 0.72);
+}
+
+/* Violet de salle d'arcade, couleurs électriques : le contraste maximal de la
+   collection, pour jouer dans le noir. */
+html[data-theme="neon"] {
+    color-scheme: dark;
+
+    --bg: #16102b;
+    --panel: #1f1840;
+    --text: #f3edff;
+    --muted: #a99ccb;
+    --border: #372c5f;
+
+    --red: #ff2d6f;
+    --yellow: #ffe14d;
+    --blue: #2de1ff;
+
+    --warn: #ffe14d;
+    --on-color: #180f2c;
+    --on-yellow: #2a2405;
+    --backdrop: rgba(9, 5, 20, 0.75);
+}
+
+/* Gris-bleu pâle et encre marine ; le rouge glisse vers le corail. La palette
+   claire et froide, quand celle du papier est claire et chaude. */
+html[data-theme="ecume"] {
+    color-scheme: light;
+
+    --bg: #e8eef2;
+    --panel: #f7fafc;
+    --text: #1e2c35;
+    --muted: #64798a;
+    --border: #c8d6de;
+
+    --red: #d1495b;
+    --yellow: #e9b949;
+    --blue: #2a6f8f;
+
+    --warn: #a24a2c;
+    --on-color: #ffffff;
+    --on-yellow: #2b2005;
+    --backdrop: rgba(20, 35, 45, 0.5);
+}
+
+/* ------------------------------------------------------------- pastilles */
+
+/* Le choix de palette, dans les Options : chaque pastille montre le triptyque
+   de la palette qu'elle propose. Ces couleurs échappent donc à `[data-theme]`
+   — elles doivent rester visibles quel que soit le thème affiché, sinon les
+   cinq pastilles se ressembleraient toutes. D'où cette redite, assumée et
+   gardée ici pour qu'ajouter une palette se fasse d'un seul fichier ; un test
+   vérifie qu'aucune n'a été oubliée. */
+
+.theme-pill[data-theme="plateau"] { --pill-red: #e7002a; --pill-yellow: #ffbd00; --pill-blue: #0077c7; }
+.theme-pill[data-theme="papier"] { --pill-red: #b8253c; --pill-yellow: #e0a419; --pill-blue: #2f5f96; }
+.theme-pill[data-theme="craie"] { --pill-red: #e0645c; --pill-yellow: #f0cf7a; --pill-blue: #6fa8c4; }
+.theme-pill[data-theme="neon"] { --pill-red: #ff2d6f; --pill-yellow: #ffe14d; --pill-blue: #2de1ff; }
+.theme-pill[data-theme="ecume"] { --pill-red: #d1495b; --pill-yellow: #e9b949; --pill-blue: #2a6f8f; }

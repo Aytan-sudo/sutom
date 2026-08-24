@@ -1,24 +1,38 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="plateau">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>SUTOM — le jeu de mots</title>
-<meta name="description" content="Devinez le mot cache en six essais. Jeu de lettres francais, jouable hors ligne.">
-<meta name="theme-color" content="#0d1117">
+<meta name="description" content="Devinez le mot caché en six essais. Jeu de lettres français, jouable hors ligne.">
+<meta name="theme-color" content="#0d1117" id="couleur-barre">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="stylesheet" href="css/themes.css">
 <link rel="stylesheet" href="css/style.css">
+<script>
+    // La palette mémorisée est posée avant le premier rendu. Dans app.js, qui
+    // est un module donc différé, la page s'afficherait d'abord en Plateau
+    // puis clignoterait vers le thème choisi.
+    try {
+        const settings = JSON.parse(localStorage.getItem('sutom.settings') || '{}');
+        if (/^(plateau|papier|craie|neon|ecume)$/.test(settings.theme || '')) {
+            document.documentElement.dataset.theme = settings.theme;
+        }
+    } catch (e) { /* stockage inaccessible : Plateau reste lisible */ }
+</script>
 </head>
 <body>
 
 <header class="topbar">
     <div class="topbar-side">
-        <button type="button" class="icon-button" id="help-button" aria-label="Regles du jeu">?</button>
+        <button type="button" class="icon-button" id="help-button" aria-label="Règles du jeu">?</button>
+        <button type="button" class="icon-button" id="daily-button" aria-label="Mot du jour"><span aria-hidden="true">☀</span></button>
     </div>
     <h1>SUTOM</h1>
     <div class="topbar-side">
+        <button type="button" class="icon-button" id="theme-button" aria-label="Changer de palette"><span aria-hidden="true">◐</span></button>
         <button type="button" class="icon-button" id="settings-button" aria-label="Options">
             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                 <rect x="3" y="6" width="18" height="2" rx="1"/>
@@ -42,17 +56,18 @@
         <div id="board" class="board" role="grid" aria-label="Grille de jeu"></div>
     </div>
 
-    <!-- Les messages passent aussi par aria-live : sans ca, un lecteur d'ecran
-         ne signale pas un mot refuse, l'utilisateur croit a un bug. -->
+    <!-- Les messages passent aussi par aria-live : sans ça, un lecteur d'écran
+         ne signale pas un mot refusé, l'utilisateur croit à un bug. -->
     <p id="message" class="message" role="status" aria-live="polite"></p>
 
     <div id="keyboard" class="keyboard" aria-label="Clavier"></div>
 </main>
 
 <dialog id="end-dialog" class="dialog">
+    <p id="end-day" class="end-day" hidden></p>
     <h2 id="end-title"></h2>
     <p id="end-word" class="end-word"></p>
-    <pre id="end-grid" class="end-grid" aria-label="Resume de la partie"></pre>
+    <pre id="end-grid" class="end-grid" aria-label="Résumé de la partie"></pre>
     <div class="dialog-actions">
         <button type="button" class="button" id="share-button">Partager</button>
         <button type="button" class="button button-primary" id="replay-button">Rejouer</button>
@@ -64,11 +79,18 @@
     <ul class="stats-summary">
         <li><strong id="stat-played">0</strong><span>parties</span></li>
         <li><strong id="stat-rate">0 %</strong><span>victoires</span></li>
-        <li><strong id="stat-streak">0</strong><span>serie</span></li>
+        <li><strong id="stat-streak">0</strong><span>série</span></li>
         <li><strong id="stat-best">0</strong><span>record</span></li>
     </ul>
-    <h3>Repartition des victoires</h3>
+    <h3>Répartition des victoires</h3>
     <ol id="stat-distribution" class="distribution"></ol>
+    <h3>Mot du jour</h3>
+    <ul class="stats-summary">
+        <li><strong id="stat-daily-streak">0</strong><span>jours d'affilée</span></li>
+        <li><strong id="stat-daily-best">0</strong><span>meilleure série</span></li>
+        <li><strong id="stat-daily-played">0</strong><span>défis joués</span></li>
+        <li><strong id="stat-daily-won">0</strong><span>trouvés</span></li>
+    </ul>
     <div class="dialog-actions">
         <button type="button" class="button button-danger" id="reset-stats">Effacer</button>
         <button type="button" class="button button-primary" data-close>Fermer</button>
@@ -77,28 +99,51 @@
 
 <dialog id="settings-dialog" class="dialog">
     <h2>Options</h2>
+    <h3>Couleurs</h3>
+    <div class="theme-choice" id="theme-choice" role="group" aria-label="Palette de couleurs"></div>
+    <h3>Sensations</h3>
+    <label class="option">
+        <input type="checkbox" id="option-sound">
+        <span>
+            <strong>Sons discrets</strong>
+            <small>Une note par case pendant que l'essai se révèle&nbsp;: grave pour une lettre absente, médium pour une lettre mal placée, aiguë pour une lettre bien placée. On entend la ligne avant de la lire.</small>
+        </span>
+    </label>
+    <label class="option">
+        <input type="checkbox" id="option-vibration">
+        <span>
+            <strong>Vibration</strong>
+            <small>Un retour tactile bref quand l'essai part, quand un mot est refusé et à la fin de la partie.</small>
+        </span>
+    </label>
+    <h3>Confort</h3>
     <label class="option">
         <input type="checkbox" id="option-free-input">
         <span>
-            <strong>Lettres trouvees modifiables</strong>
-            <small>Les lettres deja trouvees restent inscrites dans la ligne, mais on peut les effacer pour proposer un tout autre mot et sonder de nouvelles lettres. La lettre offerte, elle, reste toujours en place.</small>
+            <strong>Lettres trouvées modifiables</strong>
+            <small>Les lettres déjà trouvées restent inscrites dans la ligne, mais on peut les effacer pour proposer un tout autre mot et sonder de nouvelles lettres. La lettre offerte, elle, reste toujours en place.</small>
         </span>
     </label>
+    <p class="version" id="version">Sutom 1.1.0</p>
     <div class="dialog-actions">
         <button type="button" class="button button-primary" data-close>Fermer</button>
     </div>
 </dialog>
 
 <dialog id="help-dialog" class="dialog">
-    <h2>Regles</h2>
-    <p>Devinez le mot en six essais. Sa longueur change a chaque partie. La premiere lettre est offerte&nbsp;: elle est deja inscrite dans la grille, tapez seulement la suite du mot.</p>
+    <h2>Règles</h2>
+    <p>Devinez le mot en six essais. Sa longueur change à chaque partie. La première lettre est offerte&nbsp;: elle est déjà inscrite dans la grille, tapez seulement la suite du mot.</p>
     <ul class="rules">
-        <li><span class="sample correct" aria-hidden="true">A</span> lettre bien placee</li>
-        <li><span class="sample present" aria-hidden="true">B</span> lettre presente ailleurs dans le mot</li>
+        <li><span class="sample correct" aria-hidden="true">A</span> lettre bien placée</li>
+        <li><span class="sample present" aria-hidden="true">B</span> lettre présente ailleurs dans le mot</li>
         <li><span class="sample absent" aria-hidden="true">C</span> lettre absente du mot</li>
     </ul>
-    <p>Les lettres bien placees restent affichees dans les essais suivants&nbsp;; une option permet de les effacer pour sacrifier un essai et tester d'autres lettres. Les accents ne comptent pas : tapez <em>ete</em> pour <em>été</em>.</p>
-    <p>La touche <strong>Vide</strong> (ou la barre d'espace) saute une case&nbsp;: de quoi ecrire la fin d'un mot pour le voir en place. Un essai ne part que si toutes les cases portent une lettre.</p>
+    <p>Les lettres bien placées restent affichées dans les essais suivants&nbsp;; une option permet de les effacer pour sacrifier un essai et tester d'autres lettres. Les accents ne comptent pas&nbsp;: tapez <em>ete</em> pour <em>été</em>.</p>
+    <p>La touche <strong>Vide</strong> (ou la barre d'espace) saute une case&nbsp;: de quoi écrire la fin d'un mot pour le voir en place. Un essai ne part que si toutes les cases portent une lettre.</p>
+    <h3>Le mot du jour</h3>
+    <p>Le bouton <strong>☀</strong> propose le mot du jour&nbsp;: le même pour tout le monde, trouvé par chaque navigateur à partir de la date, sans serveur. Le réussir chaque jour allonge une série, visible dans les statistiques. Un lien de défi rouvert plus tard redonne la grille, mais reste hors série.</p>
+    <h3>Au clavier</h3>
+    <p>Les lettres et <kbd>Retour arrière</kbd> écrivent, <kbd>Entrée</kbd> valide (et relance une partie une fois celle-ci finie), la <kbd>barre d'espace</kbd> saute une case, <kbd>Échap</kbd> ferme un dialogue. Les 26 lettres appartenant à la grille, la palette et les autres réglages n'ont pas de raccourci&nbsp;: ils passent par les boutons de l'en-tête.</p>
     <p class="credit">Mots issus de <a href="http://www.lexique.org" target="_blank" rel="noopener">Lexique&nbsp;3.83</a>.</p>
     <div class="dialog-actions">
         <button type="button" class="button button-primary" data-close>Jouer</button>

@@ -1,9 +1,9 @@
-// Harnais commun aux tests d'integration : monte index.html dans jsdom, expose
+// Harnais commun aux tests d'intégration : monte index.html dans jsdom, expose
 // les globales du navigateur et importe l'application.
 //
-// Un seul demarrage par processus : app.js lance sa partie au moment de
-// l'import, et un module n'est evalue qu'une fois. Chaque scenario de
-// demarrage a donc son propre fichier de test.
+// Un seul démarrage par processus : app.js lance sa partie au moment de
+// l'import, et un module n'est évalué qu'une fois. Chaque scénario de
+// démarrage a donc son propre fichier de test.
 
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -13,24 +13,24 @@ import { JSDOM } from 'jsdom';
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-// Ce que le bouton Partager a depose dans le presse-papier.
+// Ce que le bouton Partager a déposé dans le presse-papier.
 export const clipboard = { text: null };
 
 export function counter() {
     const state = { pass: 0, fail: 0 };
     const check = (label, condition, detail = '') => {
         if (condition) { state.pass++; console.log(`  OK    ${label}`); }
-        else { state.fail++; console.log(`  ECHEC ${label} ${detail}`); }
+        else { state.fail++; console.log(`  ÉCHEC ${label} ${detail}`); }
     };
     const report = () => {
-        console.log(`\n${state.pass} reussis, ${state.fail} echecs\n`);
+        console.log(`\n${state.pass} réussis, ${state.fail} échecs\n`);
         process.exit(state.fail === 0 ? 0 : 1);
     };
     return { check, report };
 }
 
-// `random` est fige par defaut : la partie tombe toujours sur 6 lettres et sur
-// le premier mot de solutions-6.txt, donc les tests connaissent la reponse.
+// `random` est figé par défaut : la partie tombe toujours sur 6 lettres et sur
+// le premier mot de solutions-6.txt, donc les tests connaissent la réponse.
 export async function boot({ url = 'https://example.test/', random = () => 0 } = {}) {
     const dom = new JSDOM(readFileSync(join(ROOT, 'index.html'), 'utf8'), {
         url,
@@ -38,7 +38,7 @@ export async function boot({ url = 'https://example.test/', random = () => 0 } =
     });
     const { window } = dom;
 
-    // jsdom 26 connait l'element <dialog> et sa propriete open, mais pas encore
+    // jsdom 26 connaît l'élément <dialog> et sa propriété open, mais pas encore
     // showModal()/close(). On les simule sur l'attribut, ce qui suffit : le jeu
     // ne se sert du modal que pour savoir si un dialogue est ouvert.
     for (const dialog of window.document.querySelectorAll('dialog')) {
@@ -50,7 +50,7 @@ export async function boot({ url = 'https://example.test/', random = () => 0 } =
     }
 
     // Les modules du jeu tapent dans les globales du navigateur : on les expose
-    // avant l'import, sinon app.js s'execute dans le vide.
+    // avant l'import, sinon app.js s'exécute dans le vide.
     globalThis.window = window;
     globalThis.document = window.document;
     globalThis.localStorage = window.localStorage;
@@ -64,7 +64,7 @@ export async function boot({ url = 'https://example.test/', random = () => 0 } =
 
     // Node fournit son propre `navigator`, sans presse-papier ni partage : on le
     // remplace pour pouvoir lire ce que le bouton Partager produit. Pas de
-    // serviceWorker non plus, donc l'enregistrement du worker est ignore.
+    // serviceWorker non plus, donc l'enregistrement du worker est ignoré.
     Object.defineProperty(globalThis, 'navigator', {
         configurable: true,
         value: {
@@ -79,7 +79,7 @@ export async function boot({ url = 'https://example.test/', random = () => 0 } =
     return window;
 }
 
-// Raccourcis de lecture de la grille, partages par les scenarios.
+// Raccourcis de lecture de la grille, partagés par les scénarios.
 export function inspector(window) {
     const cellsOf = row => [...window.document.querySelectorAll('.row')[row].children];
     const stateOf = cell => ['correct', 'present', 'absent']

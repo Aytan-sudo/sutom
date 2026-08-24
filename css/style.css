@@ -1,18 +1,8 @@
-/* SUTOM — feuille de style unique. Theme sombre, une seule variante :
-   le jeu se joue surtout le soir et le contraste rouge/jaune/bleu est
-   directement lisible sur fond fonce. */
+/* SUTOM — géométrie et mise en page. Les couleurs sont dans themes.css et
+   n'apparaissent ici que sous forme de variables : c'est ce qui permet
+   d'ajouter une palette sans toucher une ligne de cette feuille. */
 
 :root {
-    --bg: #0d1117;
-    --panel: #161b26;
-    --text: #f2f5f9;
-    --muted: #98a2b3;
-    --border: #2a3242;
-
-    --blue: #0077c7;   /* lettre absente */
-    --red: #e7002a;    /* lettre bien placee */
-    --yellow: #ffbd00; /* lettre mal placee */
-
     --radius: 10px;
     --reveal: 320ms;
 }
@@ -32,8 +22,8 @@ body {
     font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
     display: flex;
     flex-direction: column;
-    /* Sur iPhone la barre d'adresse mange le bas de l'ecran : dvh suit la
-       hauteur reellement visible, la derniere rangee du clavier reste atteignable. */
+    /* Sur iPhone la barre d'adresse mange le bas de l'écran : dvh suit la
+       hauteur réellement visible, la dernière rangée du clavier reste atteignable. */
     min-height: 100dvh;
     padding-bottom: env(safe-area-inset-bottom);
     overscroll-behavior: none;
@@ -50,8 +40,8 @@ body {
     border-bottom: 1px solid var(--border);
 }
 
-/* Deux groupes de meme largeur de part et d'autre : le titre reste centre,
-   qu'il y ait un bouton d'un cote et deux de l'autre. */
+/* Deux groupes de même largeur de part et d'autre : le titre reste centré,
+   qu'il y ait un bouton d'un côté et deux de l'autre. */
 .topbar-side {
     flex: 1;
     display: flex;
@@ -107,9 +97,9 @@ main {
 
 /* ---------------------------------------------------------------- grille */
 
-/* La grille occupe tout l'espace laisse par le clavier et s'y centre : sur un
-   grand ecran elle reste au milieu, sur un telephone elle se cale en haut sans
-   jamais pousser le clavier hors de l'ecran. */
+/* La grille occupe tout l'espace laissé par le clavier et s'y centre : sur un
+   grand écran elle reste au milieu, sur un téléphone elle se cale en haut sans
+   jamais pousser le clavier hors de l'écran. */
 .board-wrapper {
     flex: 1;
     display: flex;
@@ -121,8 +111,8 @@ main {
 .board {
     display: grid;
     gap: 6px;
-    /* La grille prend la largeur disponible, plafonnee pour qu'une partie de
-       6 lettres n'affiche pas des cases geantes sur ecran large. */
+    /* La grille prend la largeur disponible, plafonnée pour qu'une partie de
+       6 lettres n'affiche pas des cases géantes sur écran large. */
     width: min(92vw, calc(var(--columns) * 4rem));
 }
 
@@ -148,14 +138,14 @@ main {
     border-color: var(--muted);
 }
 
-/* Lettre deja acquise, reportee automatiquement : visible mais en retrait,
+/* Lettre déjà acquise, reportée automatiquement : visible mais en retrait,
    pour qu'on ne la confonde pas avec ce qu'on vient de taper. */
 .cell.locked {
     border-color: var(--border);
     color: var(--muted);
 }
 
-/* Case sautee volontairement : un simple trait dit qu'on est passe devant sans
+/* Case sautée volontairement : un simple trait dit qu'on est passé devant sans
    rien y mettre, ce qu'une case vide ne saurait exprimer. */
 .cell.blank::after {
     content: '';
@@ -169,14 +159,14 @@ main {
 .cell.present,
 .cell.correct {
     border-color: transparent;
-    color: #fff;
+    color: var(--on-color);
 }
 
 .cell.absent { background: var(--blue); }
 .cell.correct { background: var(--red); }
 
-/* Le jaune de Motus est un rond, pas un carre : le degrade evite un element
-   supplementaire dans chaque case. */
+/* Le jaune de Motus est un rond, pas un carré : le dégradé évite un élément
+   supplémentaire dans chaque case. */
 .cell.present {
     background: radial-gradient(circle at center, var(--yellow) 0 46%, var(--blue) 46.5% 100%);
 }
@@ -209,7 +199,7 @@ main {
     min-height: 1.5rem;
     text-align: center;
     font-size: 0.95rem;
-    color: var(--yellow);
+    color: var(--warn);
     opacity: 0;
     transition: opacity 150ms;
 }
@@ -247,7 +237,7 @@ main {
     font-size: clamp(0.8rem, 3.4vw, 1rem);
     font-weight: 600;
     cursor: pointer;
-    /* Sans ca, un appui rapide repete sur mobile declenche le zoom du double-tap. */
+    /* Sans ça, un appui rapide répété sur mobile déclenche le zoom du double-tap. */
     touch-action: manipulation;
 }
 
@@ -259,15 +249,17 @@ main {
     flex: 1.6 1 auto;
 }
 
-/* Touches libellees en toutes lettres : la police suit la largeur de l'ecran,
-   sinon « Entrer » deborde de sa case sur un telephone etroit. */
+/* Touches libellées en toutes lettres : la police suit la largeur de l'écran,
+   sinon « Entrer » déborde de sa case sur un téléphone étroit. */
 .key-action {
     font-size: clamp(0.62rem, 2.6vw, 0.8rem);
 }
 
+.key.absent,
+.key.correct { color: var(--on-color); }
 .key.absent { background: var(--blue); border-color: var(--blue); }
 .key.correct { background: var(--red); border-color: var(--red); }
-.key.present { background: var(--yellow); border-color: var(--yellow); color: #21150a; }
+.key.present { background: var(--yellow); border-color: var(--yellow); color: var(--on-yellow); }
 
 /* ------------------------------------------------------------- dialogues */
 
@@ -282,7 +274,7 @@ main {
 }
 
 .dialog::backdrop {
-    background: rgba(3, 6, 12, 0.72);
+    background: var(--backdrop);
 }
 
 .dialog h2 {
@@ -301,6 +293,17 @@ main {
     margin: 0 0 0.75rem;
     line-height: 1.5;
     color: var(--muted);
+}
+
+/* Le bandeau du mot du jour, au-dessus du verdict : on doit savoir ce qu'on
+   vient de jouer avant de lire le score, et ce que le bouton Partager enverra. */
+.end-day {
+    margin: 0 0 0.35rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--warn);
+    font-weight: 600;
 }
 
 .end-word {
@@ -341,6 +344,7 @@ main {
 .button-primary {
     background: var(--red);
     border-color: var(--red);
+    color: var(--on-color);
 }
 
 .button-danger {
@@ -387,7 +391,7 @@ main {
 
 .distribution .bar {
     background: var(--red);
-    color: #fff;
+    color: var(--on-color);
     border-radius: 4px;
     padding: 0.15rem 0.4rem;
     text-align: right;
@@ -395,10 +399,66 @@ main {
     font-size: 0.8rem;
 }
 
-/* Une barre vide en rouge vif se lit comme un resultat : on la neutralise. */
+/* Une barre vide en rouge vif se lit comme un résultat : on la neutralise. */
 .distribution .bar.empty {
     background: var(--border);
     color: var(--muted);
+}
+
+/* -------------------------------------------------------------- palettes */
+
+/* Une pastille par palette, peinte de ses trois couleurs : on reconnaît une
+   ambiance d'un coup d'œil, le nom ne fait que confirmer. Les couleurs sont
+   celles de la palette visée, pas celles du thème courant — d'où les variables
+   redéclarées sur chaque bouton par [data-theme]. */
+.theme-choice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.theme-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.6rem 0.35rem 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    /* Cible tactile : la pastille est petite, la zone de touche ne l'est pas. */
+    min-height: 2.1rem;
+    touch-action: manipulation;
+}
+
+.theme-pill span {
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 50%;
+    flex: none;
+    /* Le triptyque en trois tiers : rouge, jaune, bleu. */
+    background: conic-gradient(var(--pill-red) 0 33.33%, var(--pill-yellow) 0 66.66%, var(--pill-blue) 0);
+}
+
+.theme-pill.active {
+    color: var(--text);
+    border-color: var(--muted);
+}
+
+/* Les couleurs des pastilles sont dans themes.css, avec le reste : une pastille
+   montre le triptyque de la palette qu'elle propose, pas celui du thème courant. */
+
+/* La ligne de version, au bas des Options : discrète, mais c'est elle qui dit
+   ce que l'appareil exécute vraiment quand on doute d'une mise à jour. */
+.version {
+    margin: 1.5rem 0 0;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-align: right;
 }
 
 /* -------------------------------------------------------------- options */
@@ -455,7 +515,7 @@ main {
     place-items: center;
     border-radius: 8px;
     font-weight: 700;
-    color: #fff;
+    color: var(--on-color);
     flex: none;
 }
 
@@ -473,7 +533,7 @@ main {
     color: var(--muted);
 }
 
-/* Certaines personnes ont le mal des transports avec les animations d'ecran :
+/* Certaines personnes ont le mal des transports avec les animations d'écran :
    on coupe tout mouvement, le jeu reste identique. */
 @media (prefers-reduced-motion: reduce) {
     .cell.revealing,
@@ -482,8 +542,18 @@ main {
     }
 }
 
-/* Ecrans courts (paysage sur telephone) : on comprime le clavier plutot que
-   de laisser la grille sortir de l'ecran. */
+/* Téléphones étroits : la barre porte le titre et quatre boutons. On rétrécit
+   les deux plutôt que de laisser le titre se décentrer ou déborder. */
+@media (max-width: 380px) {
+    .icon-button { width: 2rem; height: 2rem; font-size: 1rem; }
+    .icon-button svg { width: 1rem; height: 1rem; }
+    .topbar { padding: 0.6rem 0.6rem; }
+    .topbar-side { gap: 0.25rem; }
+    .topbar h1 { font-size: 1.2rem; letter-spacing: 0.2em; text-indent: 0.2em; }
+}
+
+/* Écrans courts (paysage sur téléphone) : on comprime le clavier plutôt que
+   de laisser la grille sortir de l'écran. */
 @media (max-height: 640px) {
     .key { height: 2.6rem; }
     .topbar { padding: 0.4rem 1rem; }

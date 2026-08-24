@@ -1,11 +1,12 @@
 {
     "name": "sutom",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "private": true,
-    "description": "Jeu de lettres francais facon SUTOM, statique et jouable hors ligne.",
+    "description": "Jeu de lettres français façon SUTOM, statique et jouable hors ligne.",
     "type": "module",
     "scripts": {
-        "test": "node tests/test-engine.mjs && node tests/test-data.mjs && node tests/test-ui.mjs && node tests/test-saisie.mjs && node tests/test-challenge.mjs && node tests/test-challenge-fallback.mjs",
+        "test": "node tests/test-engine.mjs && node tests/test-data.mjs && node tests/test-page.mjs && node tests/test-daily.mjs && node tests/test-ui.mjs && node tests/test-saisie.mjs && node tests/test-challenge.mjs && node tests/test-challenge-fallback.mjs && node tests/test-daily-game.mjs",
+        "check": "node --check js/app.js && node --check js/challenge.js && node --check js/config.js && node --check js/daily.js && node --check js/dictionary.js && node --check js/engine.js && node --check js/sound.js && node --check js/storage.js && node --check js/themes.js && node --check js/ui.js",
         "serve": "python3 -m http.server 8765",
         "build:dict": "node scripts/build-dictionary.mjs"
     },

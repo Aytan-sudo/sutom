@@ -1,8 +1,8 @@
-// Acces aux listes de mots.
+// Accès aux listes de mots.
 //
-// Les fichiers sont decoupes par longueur : une partie de 7 lettres ne
-// telecharge que lexique-7.txt (~120 Ko), pas les 630 Ko de data/. Une fois
-// charges ils restent en memoire, et le service worker les garde sur disque.
+// Les fichiers sont découpés par longueur : une partie de 7 lettres ne
+// télécharge que lexique-7.txt (~120 Ko), pas les 630 Ko de data/. Une fois
+// chargés ils restent en mémoire, et le service worker les garde sur disque.
 
 import { MIN_LENGTH, MAX_LENGTH, normalize } from './engine.js';
 
@@ -43,9 +43,9 @@ export async function load(length) {
     return task;
 }
 
-// Tire un mot en evitant ceux joues recemment. Si l'historique couvre tout le
+// Tire un mot en évitant ceux joués récemment. Si l'historique couvre tout le
 // stock (impossible en pratique : ~2000 mots par longueur), on ignore le filtre
-// plutot que de tourner en boucle.
+// plutôt que de tourner en boucle.
 export async function pickSolution(length, recent = []) {
     const { solutions } = await load(length);
     const avoid = new Set(recent);
@@ -55,7 +55,7 @@ export async function pickSolution(length, recent = []) {
 }
 
 // Un mot est jouable s'il a la bonne longueur et figure au lexique. Les
-// solutions sont incluses dans le lexique (verifie par tests/test-data.mjs).
+// solutions sont incluses dans le lexique (vérifié par tests/test-data.mjs).
 export function isPlayable(word, length) {
     const entry = cache.get(length);
     if (!entry) return false;

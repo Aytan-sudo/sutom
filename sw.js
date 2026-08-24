@@ -1,31 +1,38 @@
 // Service worker : rend le jeu jouable hors ligne.
 //
-// Le squelette de l'application (HTML, CSS, JS, icones) est mis en cache a
-// l'installation : c'est petit et il faut qu'il soit la des la premiere coupure
-// reseau. Mais il est ensuite servi reseau d'abord, cache en secours. Le
-// cache-first serait plus rapide et c'est un piege : un `git push` resterait
-// invisible pour tous ceux qui ont deja ouvert le jeu, jusqu'a ce qu'on pense a
-// changer VERSION a la main. Un aller-retour de 30 Ko par visite est un prix
-// tres bas pour ne pas dependre de cette vigilance.
+// Le squelette de l'application (HTML, CSS, JS, icônes) est mis en cache à
+// l'installation : c'est petit et il faut qu'il soit là dès la première coupure
+// réseau. Mais il est ensuite servi réseau d'abord, cache en secours. Le
+// cache-first serait plus rapide et c'est un piège : un `git push` resterait
+// invisible pour tous ceux qui ont déjà ouvert le jeu, jusqu'à ce qu'on pense à
+// changer VERSION à la main. Un aller-retour de 30 Ko par visite est un prix
+// très bas pour ne pas dépendre de cette vigilance.
 //
-// Les listes de mots suivent la regle inverse. Elles pesent 630 Ko pour les
-// quatre longueurs : les precharger ferait payer a chacun trois fichiers qu'il
-// ne jouera peut-etre jamais. Elles sont donc mises en cache au fil des parties,
+// Les listes de mots suivent la règle inverse. Elles pèsent 630 Ko pour les
+// quatre longueurs : les précharger ferait payer à chacun trois fichiers qu'il
+// ne jouera peut-être jamais. Elles sont donc mises en cache au fil des parties,
 // puis servies depuis le cache, leur contenu ne changeant que lors d'une
-// regeneration de data/ — qui s'accompagne alors d'un changement de VERSION.
+// régénération de data/ — qui s'accompagne alors d'un changement de VERSION.
 
-const VERSION = 'sutom-v1';
+const VERSION = 'sutom-1.1.0';
 const SHELL = [
     './',
     'index.html',
+    'css/themes.css',
     'css/style.css',
     'js/app.js',
+    'js/config.js',
+    'js/challenge.js',
+    'js/daily.js',
     'js/engine.js',
     'js/dictionary.js',
+    'js/sound.js',
     'js/storage.js',
+    'js/themes.js',
     'js/ui.js',
     'manifest.webmanifest',
     'assets/icon.svg',
+    'assets/icon-180.png',
     'assets/icon-192.png',
     'assets/icon-512.png'
 ];

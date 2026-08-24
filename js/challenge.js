@@ -1,12 +1,12 @@
-// Lien de defi : le mot a deviner voyage dans le fragment de l'URL.
+// Lien de défi : le mot à deviner voyage dans le fragment de l'URL.
 //
-// Sans ca le partage ne veut rien dire. En partie libre chacun tire un mot au
-// hasard, donc une grille d'emojis envoyee a un ami ne se compare a rien : il
+// Sans ça le partage ne veut rien dire. En partie libre chacun tire un mot au
+// hasard, donc une grille d'emojis envoyée à un ami ne se compare à rien : il
 // cherchait un autre mot. Le fragment porte le mot, celui qui ouvre le lien
-// affronte exactement la meme grille.
+// affronte exactement la même grille.
 //
 // Le code n'est pas du chiffrement, seulement un encodage : de quoi ne pas lire
-// la reponse dans la barre d'adresse ou dans l'apercu du message. Qui veut
+// la réponse dans la barre d'adresse ou dans l'aperçu du message. Qui veut
 // tricher y arrivera, comme sur tout jeu dont la logique tient dans le
 // navigateur — mais on ne se spoile pas par accident, et c'est le but.
 //
@@ -31,7 +31,7 @@ export function decodeWord(code) {
         if (word.length < MIN_LENGTH || word.length > MAX_LENGTH) return null;
         return word;
     } catch (e) {
-        return null; // code tronque ou bricole a la main
+        return null; // code tronqué ou bricolé à la main
     }
 }
 
@@ -39,7 +39,7 @@ export function buildLink(baseUrl, word) {
     return `${baseUrl}#${KEY}=${encodeWord(word)}`;
 }
 
-// Retourne le mot du defi contenu dans un fragment d'URL, ou null.
+// Retourne le mot du défi contenu dans un fragment d'URL, ou null.
 export function readChallenge(hash) {
     if (!hash) return null;
     const match = new RegExp(`[#&]${KEY}=([A-Za-z0-9_-]+)`).exec(hash);
