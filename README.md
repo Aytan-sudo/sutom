@@ -5,6 +5,13 @@ Site statique, sans build ni serveur, jouable hors ligne.
 
 **Jouer : https://aytan-sudo.github.io/sutom/**
 
+## Version 1.1.1
+
+- les cibles tactiles de l'interface passent à 44 px (boutons d'en-tête,
+  boutons texte, listes déroulantes), conformément à la convention.
+- les touches du clavier déclarent leur exemption (`data-cible-libre`) : dix
+  touches par rangée font 440 px, plus que la largeur de l'écran.
+
 ## Version 1.1.0
 
 - **mot du jour** : le même pour tout le monde, retrouvé par chaque navigateur

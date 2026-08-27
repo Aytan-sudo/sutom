@@ -60,7 +60,8 @@
          ne signale pas un mot refusé, l'utilisateur croit à un bug. -->
     <p id="message" class="message" role="status" aria-live="polite"></p>
 
-    <div id="keyboard" class="keyboard" aria-label="Clavier"></div>
+    <div id="keyboard" class="keyboard" aria-label="Clavier"
+         data-cible-libre="touches de clavier : dix par rangée font 440 px, plus que la largeur de l'écran — iOS fait de même"></div>
 </main>
 
 <dialog id="end-dialog" class="dialog">
@@ -124,7 +125,7 @@
             <small>Les lettres déjà trouvées restent inscrites dans la ligne, mais on peut les effacer pour proposer un tout autre mot et sonder de nouvelles lettres. La lettre offerte, elle, reste toujours en place.</small>
         </span>
     </label>
-    <p class="version" id="version">Sutom 1.1.0</p>
+    <p class="version" id="version">Sutom 1.1.1</p>
     <div class="dialog-actions">
         <button type="button" class="button button-primary" data-close>Fermer</button>
     </div>
