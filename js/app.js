@@ -274,9 +274,10 @@ async function submitWord() {
     }
 }
 
-// Un mot accepté par le dictionnaire est une vraie réponse, juste ou fausse :
-// il rapproche du tampon Mots. Les mots incomplets ou refusés n'arrivent pas
-// jusqu'ici. En mode invité, le compteur ne tourne pas.
+// Le tampon Mots récompense l'effort ou la réussite. Un mot accepté par le
+// dictionnaire est une vraie réponse, juste ou fausse : dix dans la journée
+// donnent le tampon. Les mots incomplets ou refusés n'arrivent pas jusqu'ici.
+// En mode invité, le compteur ne tourne pas.
 function notePassport() {
     const words = countPassportWord(today());
     if (words !== null) globalThis.Passeport?.noter('sutom', words);
@@ -287,6 +288,8 @@ function finishGame() {
     play(won ? soundWin : soundLose);
     vibrate(won ? [30, 45, 30] : 60);
     recordGame(won, game.attempts.length);
+    // Trouver le mot est une réussite : le tampon tombe, même au premier essai.
+    if (won && globalThis.Passeport?.profilId) globalThis.Passeport.noter('sutom', game.attempts.length, true);
     // Seul le défi joué le jour même compte pour la série : rouvrir un vieux
     // lien redonne la grille, jamais les jours d'affilée.
     if (day) recordDaily(day, { won, attempts: game.attempts.length }, day === today());

@@ -6,7 +6,7 @@
 // chargé : si le service worker sert encore un vieux cache, c'est le vieux
 // numéro qui s'affiche, et la mise à jour manquante se voit d'un coup d'œil.
 
-export const VERSION = '1.2.0';
+export const VERSION = '1.3.0';
 
 // L'adresse publique, celle que portent les liens partagés. En dur plutôt que
 // déduite de location : un lien copié depuis un serveur local doit rester

@@ -5,6 +5,12 @@ Site statique, sans build ni serveur, jouable hors ligne.
 
 **Jouer : https://aytan-sudo.github.io/sutom/**
 
+## Version 1.3.0 — Un mot trouvé, un tampon
+
+- trouver le mot donne le tampon **Mots** tout de suite, même au premier essai ;
+  les dix mots essayés dans la journée restent l'autre chemin, pour qui ne
+  trouve pas. Un seul tampon par jour dans tous les cas.
+
 ## Version 1.2.0 — Le passeport commun
 
 - ouvert depuis le hub avec un passeport, le jeu range les statistiques, la

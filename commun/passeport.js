@@ -1,4 +1,4 @@
-/* Passeport 1.1.0 — source commune, distribuée par scripts/distribuer.mjs.
+/* Passeport 1.2.0 — source commune, distribuée par scripts/distribuer.mjs.
  * Aucun réseau. Une entrée indépendante par profil / jeu / journée évite
  * qu'une partie dans un autre onglet écrase les tampons de son voisin.
  */
@@ -19,7 +19,7 @@
     const JEUX = {
         'geo-trouve-tout': { theme: 'geo', questions: 10, stockage: 'geo', nom: 'Géo Trouve-Tout' },
         html_multiplication: { theme: 'nombres', questions: 10, stockage: 'multiplication', nom: 'Multiplication' },
-        // Dix mots acceptés par le dictionnaire dans la journée, sur plusieurs parties si besoin.
+        // Dix mots acceptés par le dictionnaire dans la journée, sur plusieurs parties si besoin, ou un mot trouvé.
         sutom: { theme: 'mots', questions: 10, stockage: 'sutom', nom: 'SUTOM' }
     };
     const ESPACES = Object.values(JEUX).map(j => j.stockage);
@@ -167,9 +167,14 @@
             if (id && (!profil(id) || profil(id).archive)) throw new Error('Profil indisponible.');
             ecrire('actif', id);
         }
-        function noter({ profilId, jeu, questions }) {
+        // Le tampon récompense l'effort OU la réussite : dix réponses essayées
+        // (les erreurs comptent), ou une partie réussie, même du premier coup.
+        // Chaque jeu dit ce qu'est une réussite ; `reussite` doit valoir true.
+        function noter({ profilId, jeu, questions, reussite = false }) {
             const p = profil(profilId);
-            if (!p || p.archive || !Object.hasOwn(JEUX, jeu) || !Number.isInteger(questions) || questions < JEUX[jeu].questions) return { gagne: false };
+            if (!p || p.archive || !Object.hasOwn(JEUX, jeu)) return { gagne: false };
+            const effort = Number.isInteger(questions) && questions >= JEUX[jeu].questions;
+            if (!effort && reussite !== true) return { gagne: false };
             const jour = jourLocal(maintenant());
             const cle = `activite/${profilId}/${jour}/${jeu}`;
             const avant = lire(cle);
@@ -336,10 +341,11 @@
         coffre, profilId, get avertissement() { return avertissement; },
         profil: () => coffre?.profil(profilId),
         stockageJeu: jeu => coffre?.stockageJeu(jeu, profilId),
-        noter(jeu, questions) {
+        // noter(jeu, nombreDeReponses) après chaque réponse ; noter(jeu, n, true) quand une partie est réussie.
+        noter(jeu, questions, reussite = false) {
             try {
                 if (coffre?.generation() !== generationDepart) throw new Error('Le coffre a été restauré. Rouvre ce jeu depuis le hub.');
-                const resultat = coffre?.noter({ profilId, jeu, questions });
+                const resultat = coffre?.noter({ profilId, jeu, questions, reussite });
                 if (resultat?.gagne) global.dispatchEvent(new CustomEvent('passeport-tampon', { detail: resultat.activite }));
                 return resultat;
             } catch (e) { signaler(e.message); return { gagne: false, erreur: true }; }

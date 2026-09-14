@@ -19,7 +19,7 @@
         lien.href = url.href;
         lien.textContent = profil ? `${profil.avatar} ${profil.nom} · Passeport` : '📒 Mon passeport';
         // Chaque jeu peut dire ce qu'il compte : « 10 mots », « 10 calculs »…
-        message.textContent = p.avertissement || (profil ? ruban.dataset.consigne || '10 réponses pour un tampon' : 'Mode invité');
+        message.textContent = p.avertissement || (profil ? ruban.dataset.consigne || 'Tampon : 10 réponses ou une partie réussie' : 'Mode invité');
         const nomDuJeu = ruban.dataset.jeu;
         if (profil && p.JEUX[nomDuJeu] && !p.avertissement) {
             try {
