@@ -5,6 +5,12 @@ Site statique, sans build ni serveur, jouable hors ligne.
 
 **Jouer : https://aytan-sudo.github.io/sutom/**
 
+## Version 1.3.2 — Passeport 1.3.0
+
+- module commun du passeport 1.3.0 (style sobre et objectif facultatif pour les
+  profils) ; l’aide parle du joueur plutôt que de l’enfant. Rien ne change dans
+  le jeu.
+
 ## Version 1.3.0 — Un mot trouvé, un tampon
 
 - trouver le mot donne le tampon **Mots** tout de suite, même au premier essai ;

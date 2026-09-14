@@ -1,4 +1,4 @@
-/* Passeport 1.2.0 — source commune, distribuée par scripts/distribuer.mjs.
+/* Passeport 1.3.0 — source commune, distribuée par scripts/distribuer.mjs.
  * Aucun réseau. Une entrée indépendante par profil / jeu / journée évite
  * qu'une partie dans un autre onglet écrase les tampons de son voisin.
  */
@@ -9,6 +9,8 @@
     const PREFIXE = 'collection.v1.';
     const AVATARS = ['🦊', '🐼', '🐱', '🐸', '🐰', '🐻', '🐨', '🦄'];
     const PALETTES = ['lavande', 'peche', 'menthe'];
+    // Ludique pour les enfants, sobre pour les adultes : seuls les mots et la mascotte changent.
+    const TONS = ['ludique', 'sobre'];
     const THEMES = {
         geo: { nom: 'Géographie', emoji: '🌍', titre: 'À la découverte du monde' },
         nombres: { nom: 'Nombres', emoji: '🔢', titre: 'Le pouvoir des nombres' },
@@ -49,7 +51,11 @@
                 && Number.isInteger(valeur.objectif) && valeur.objectif >= 2 && valeur.objectif <= 7
                 && Array.isArray(valeur.activites) && valeur.activites.length >= 1
                 && valeur.activites.every(jeuValide)
-                && typeof valeur.archive === 'boolean' && Number.isFinite(numeroJour(valeur.creeLe));
+                && typeof valeur.archive === 'boolean' && Number.isFinite(numeroJour(valeur.creeLe))
+                // Champs facultatifs (1.3.0) : une copie plus ancienne les ignore sans rejeter le profil.
+                // L'objectif garde toujours un nombre valide, même quand il est désactivé.
+                && (valeur.ton === undefined || TONS.includes(valeur.ton))
+                && (valeur.sansObjectif === undefined || typeof valeur.sansObjectif === 'boolean');
         }
         if (parts[0] === 'activite' && parts.length === 4) {
             return idValide(parts[1]) && Number.isFinite(numeroJour(parts[2])) && jeuValide(parts[3])
@@ -151,14 +157,14 @@
             const avant = profil(id);
             if (!avant) throw new Error('Ce profil n’existe pas sur cet appareil.');
             const p = { ...avant };
-            for (const k of ['nom', 'avatar', 'palette', 'objectif', 'activites', 'archive']) if (Object.hasOwn(changements, k)) p[k] = changements[k];
+            for (const k of ['nom', 'avatar', 'palette', 'objectif', 'activites', 'archive', 'ton', 'sansObjectif']) if (Object.hasOwn(changements, k)) p[k] = changements[k];
             p.nom = p.nom.trim();
             return ecrire(`profil/${id}`, p);
         }
-        function creerProfil({ nom, avatar = '🦊', palette = 'lavande' }) {
+        function creerProfil({ nom, avatar = '🦊', palette = 'lavande', ton = 'ludique' }) {
             if (profils(true).length >= 20) throw new Error('Ce coffre contient déjà 20 profils.');
             const id = uuid();
-            const p = { id, nom: nom.trim(), avatar, palette, objectif: 4, activites: Object.keys(JEUX), archive: false, creeLe: jourLocal(maintenant()) };
+            const p = { id, nom: nom.trim(), avatar, palette, ton, objectif: 4, activites: Object.keys(JEUX), archive: false, creeLe: jourLocal(maintenant()) };
             ecrire(`profil/${id}`, p);
             ecrire('actif', id);
             return p;
@@ -196,7 +202,7 @@
                 for (const a of activites.filter(a => a.theme === t && a.jour <= aujourdHui).sort((a, b) => b.jour.localeCompare(a.jour))) if (!vus.has(a.jour)) vus.set(a.jour, a);
                 return [t, [...vus.values()]];
             }));
-            return { profil: p, semaine, joursSemaine: semaine.filter(j => j.valide).length, joursTotal: jours.size, themes, objectifAtteint: semaine.filter(j => j.valide).length >= p.objectif };
+            return { profil: p, semaine, joursSemaine: semaine.filter(j => j.valide).length, joursTotal: jours.size, themes, objectifAtteint: !p.sansObjectif && semaine.filter(j => j.valide).length >= p.objectif };
         }
         // L'export sert surtout quand quelque chose s'est abîmé : il emporte tout
         // ce qui reste lisible et nomme ce qu'il a dû laisser.
@@ -312,7 +318,7 @@
         }
         return { lire, ecrire, cles, profils, profil, creerProfil, modifierProfil, choisir, noter, bilan, exporter, preparerExport, preparerImport, restaurer, stockageJeu, reprendreAncien, generation, alertes };
     }
-    const constantes = { VERSION, AVATARS, PALETTES, THEMES, JEUX, jourLocal, numeroJour, creerCoffre };
+    const constantes = { VERSION, AVATARS, PALETTES, TONS, THEMES, JEUX, jourLocal, numeroJour, creerCoffre };
     if (typeof module !== 'undefined' && module.exports) module.exports = constantes;
     global.Passeport = constantes;
     if (!global.document) return;
