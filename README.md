@@ -5,6 +5,22 @@ Site statique, sans build ni serveur, jouable hors ligne.
 
 **Jouer : https://aytan-sudo.github.io/sutom/**
 
+## Version 1.2.0 — Le passeport commun
+
+- ouvert depuis le hub avec un passeport, le jeu range les statistiques, la
+  série du mot du jour, les réglages et la partie en cours dans l'espace de
+  l'enfant ; sans passeport (mode invité), rien ne change ;
+- **dix mots acceptés par le dictionnaire dans la journée** donnent le tampon
+  **Mots**, sur une ou plusieurs parties : les mots faux comptent, les mots
+  incomplets ou refusés non. Le compteur est rangé dans le passeport et
+  survit à un rechargement ;
+- le bandeau du passeport, en haut de la page, ramène au hub et annonce le
+  tampon ; l'adresse garde le profil quand une nouvelle partie commence, pour
+  qu'un rechargement reste sur le même enfant ;
+- les trois fichiers `commun/` viennent du hub (`npm run distribuer`) et sont
+  précachés pour le hors-ligne. Le hub peut copier les anciennes données du
+  mode invité vers un profil, sans les effacer.
+
 ## Version 1.1.1
 
 - les cibles tactiles de l'interface passent à 44 px (boutons d'en-tête,

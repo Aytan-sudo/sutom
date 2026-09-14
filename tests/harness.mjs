@@ -31,7 +31,10 @@ export function counter() {
 
 // `random` est figé par défaut : la partie tombe toujours sur 6 lettres et sur
 // le premier mot de solutions-6.txt, donc les tests connaissent la réponse.
-export async function boot({ url = 'https://example.test/', random = () => 0 } = {}) {
+//
+// `avant` s'exécute juste avant l'import du jeu, comme les scripts classiques
+// de la page : c'est là que le passeport commun se charge.
+export async function boot({ url = 'https://example.test/', random = () => 0, avant = null } = {}) {
     const dom = new JSDOM(readFileSync(join(ROOT, 'index.html'), 'utf8'), {
         url,
         pretendToBeVisual: true
@@ -73,6 +76,7 @@ export async function boot({ url = 'https://example.test/', random = () => 0 } =
     });
 
     Math.random = random;
+    if (avant) await avant(window);
 
     await import('../js/app.js');
     await wait(60); // laisse le chargement du dictionnaire se terminer

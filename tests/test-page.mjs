@@ -131,7 +131,7 @@ console.log('\nles palettes');
         /color-scheme: light/.test(themes) && /color-scheme: dark/.test(themes));
     check('le thème par défaut est posé sur la page', page.includes('data-theme="plateau"'));
     check('la palette mémorisée est restaurée avant le rendu',
-        page.includes("localStorage.getItem('sutom.settings')") && page.indexOf('<script>') < page.indexOf('</head>'));
+        page.includes("getItem('sutom.settings')") && page.indexOf('<script>') < page.indexOf('</head>'));
     check('la barre du navigateur suit la palette', page.includes('id="couleur-barre"'));
     check('chaque palette a une couleur de barre', THEMES.every(theme => /^#[0-9a-f]{6}$/i.test(theme.couleur)));
     const sansPastille = THEMES.filter(theme => !themes.includes(`.theme-pill[data-theme="${theme.id}"]`));

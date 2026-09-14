@@ -9,7 +9,8 @@ import {
     loadGame, saveGame, clearGame,
     loadRecent, pushRecent,
     loadDaily, recordDaily, dailyResult,
-    hasSeenHelp, markHelpSeen
+    hasSeenHelp, markHelpSeen,
+    countPassportWord
 } from './storage.js';
 import { buildLink, readChallenge } from './challenge.js';
 import { today, readDay, dayLength, dayIndex, dayLink, formatDay } from './daily.js';
@@ -256,6 +257,7 @@ async function submitWord() {
     const rowIndex = game.attempts.length;
     const attempt = game.submit(word);
     saveGame(game, day);
+    notePassport();
 
     busy = true;
     ui.paintAttempt(rowIndex, attempt, true);
@@ -270,6 +272,14 @@ async function submitWord() {
         resetInput();
         refreshInput();
     }
+}
+
+// Un mot accepté par le dictionnaire est une vraie réponse, juste ou fausse :
+// il rapproche du tampon Mots. Les mots incomplets ou refusés n'arrivent pas
+// jusqu'ici. En mode invité, le compteur ne tourne pas.
+function notePassport() {
+    const words = countPassportWord(today());
+    if (words !== null) globalThis.Passeport?.noter('sutom', words);
 }
 
 function finishGame() {
@@ -323,9 +333,15 @@ async function share() {
 
 // Réécrit l'adresse sans recharger. `suffix` vaut '' pour une partie libre :
 // sinon le prochain rechargement ramènerait le défi ou le jour de l'URL alors
-// qu'on est déjà passé à autre chose.
+// qu'on est déjà passé à autre chose. Le profil du passeport, lui, reste :
+// recharger l'onglet doit garder le même enfant, même si le hub en a choisi
+// un autre entre-temps.
 function setUrl(suffix) {
-    history.replaceState(null, '', window.location.pathname + suffix);
+    const params = new URLSearchParams(suffix);
+    const profil = new URLSearchParams(window.location.search).get('profil');
+    if (profil !== null) params.set('profil', profil);
+    const query = params.toString();
+    history.replaceState(null, '', window.location.pathname + (query ? `?${query}` : ''));
 }
 
 async function newRandomGame() {

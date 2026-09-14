@@ -13,26 +13,30 @@ const KEY_RECENT = 'sutom.recent';
 const KEY_HELP_SEEN = 'sutom.help-seen';
 const KEY_SETTINGS = 'sutom.settings';
 const KEY_DAILY = 'sutom.daily';
+const KEY_PASSPORT = 'sutom.passeport';
 const RECENT_MAX = 60; // ~3 % du stock d'une longueur : évite les redites proches
 const DAILY_MAX = 180; // six mois de résultats quotidiens gardés
 const DAILY_SCHEMA = 1;
 
 const memory = new Map();
 
-const available = (() => {
+// Ouvert depuis le hub avec un passeport, le jeu range tout dans l'espace de
+// l'enfant ; en mode invité, directement dans localStorage, comme avant.
+const passport = globalThis.Passeport?.stockageJeu('sutom') ?? null;
+const store = passport ?? (() => {
     try {
         const probe = '__sutom_probe__';
         localStorage.setItem(probe, '1');
         localStorage.removeItem(probe);
-        return true;
+        return localStorage;
     } catch (e) {
-        return false;
+        return null;
     }
 })();
 
 function read(key, fallback) {
     try {
-        const raw = available ? localStorage.getItem(key) : memory.get(key);
+        const raw = store ? store.getItem(key) : memory.get(key);
         return raw ? JSON.parse(raw) : fallback;
     } catch (e) {
         return fallback; // donnée illisible : on repart proprement
@@ -42,7 +46,7 @@ function read(key, fallback) {
 function write(key, value) {
     const raw = JSON.stringify(value);
     try {
-        if (available) localStorage.setItem(key, raw);
+        if (store) store.setItem(key, raw);
         else memory.set(key, raw);
     } catch (e) {
         memory.set(key, raw);
@@ -51,9 +55,23 @@ function write(key, value) {
 
 function remove(key) {
     try {
-        if (available) localStorage.removeItem(key);
+        if (store) store.removeItem(key);
     } catch (e) { /* rien à faire */ }
     memory.delete(key);
+}
+
+// ------------------------------------------------------------------ passeport
+
+// Mots acceptés par le dictionnaire aujourd'hui, toutes parties confondues :
+// une grille ne compte que six essais, le tampon en demande dix. Le compteur
+// vit dans l'espace de l'enfant, un rechargement ne le remet donc pas à zéro.
+// Renvoie null en mode invité : rien à compter, rien à écrire.
+export function countPassportWord(day) {
+    if (!passport) return null;
+    const saved = read(KEY_PASSPORT, null);
+    const words = saved && saved.day === day && Number.isInteger(saved.words) ? saved.words + 1 : 1;
+    write(KEY_PASSPORT, { day, words });
+    return words;
 }
 
 // Options du joueur. Elles se fusionnent avec les valeurs par défaut à la
