@@ -1,6 +1,6 @@
 {
     "name": "sutom",
-    "version": "1.3.3",
+    "version": "1.3.4",
     "private": true,
     "description": "Jeu de lettres français façon SUTOM, statique et jouable hors ligne.",
     "type": "module",

@@ -1,4 +1,4 @@
-/* Passeport 1.4.0 — source commune, distribuée par scripts/distribuer.mjs.
+/* Passeport 1.5.0 — source commune, distribuée par scripts/distribuer.mjs.
  * Aucun réseau. Une entrée indépendante par profil / jeu / journée évite
  * qu'une partie dans un autre onglet écrase les tampons de son voisin.
  */
@@ -26,9 +26,21 @@
         // Casse-tête : une grille réussie, ou l'effort compté à leur façon —
         // dix parties jouées jusqu'au bout, trente traits posés dans la journée.
         demineur: { theme: 'logique', questions: 10, stockage: 'demineur', nom: 'Démineur' },
-        slitherlink: { theme: 'logique', questions: 30, stockage: 'slitherlink', nom: 'Slitherlink' }
+        slitherlink: { theme: 'logique', questions: 30, stockage: 'slitherlink', nom: 'Slitherlink' },
+        // Une grille terminée (tous les murs posés), ou trente murs posés dans la journée.
+        architecte: { theme: 'logique', questions: 30, stockage: 'architecte', nom: 'L’Architecte' },
+        // Une partie gagnée, ou cinquante coups joués dans la journée.
+        solitaire: { theme: 'logique', questions: 50, stockage: 'solitaire', nom: 'Solitaire' }
     };
     const ESPACES = Object.values(JEUX).map(j => j.stockage);
+    // Un jeu raccordé après le dernier réglage d'un profil y entre d'office.
+    // `jeuxVus` retient les jeux que l'administrateur a pu cocher ou décocher ;
+    // un profil plus ancien que ce champ n'a connu que les deux premiers jeux.
+    const JEUX_INITIAUX = ['geo-trouve-tout', 'html_multiplication'];
+    function activitesDe(p) {
+        const vus = new Set(Array.isArray(p.jeuxVus) ? p.jeuxVus : [...JEUX_INITIAUX, ...p.activites]);
+        return [...new Set([...p.activites, ...Object.keys(JEUX).filter(j => !vus.has(j))])];
+    }
     const idValide = x => typeof x === 'string' && /^[a-zA-Z0-9_-]{8,64}$/.test(x);
     // Chaque jeu embarque sa propre copie du module : une copie plus ancienne
     // doit lire, conserver et exporter les jeux raccordés après elle.
@@ -59,7 +71,8 @@
                 // Champs facultatifs (1.3.0) : une copie plus ancienne les ignore sans rejeter le profil.
                 // L'objectif garde toujours un nombre valide, même quand il est désactivé.
                 && (valeur.ton === undefined || TONS.includes(valeur.ton))
-                && (valeur.sansObjectif === undefined || typeof valeur.sansObjectif === 'boolean');
+                && (valeur.sansObjectif === undefined || typeof valeur.sansObjectif === 'boolean')
+                && (valeur.jeuxVus === undefined || (Array.isArray(valeur.jeuxVus) && valeur.jeuxVus.every(jeuValide)));
         }
         if (parts[0] === 'activite' && parts.length === 4) {
             return idValide(parts[1]) && Number.isFinite(numeroJour(parts[2])) && jeuValide(parts[3])
@@ -161,14 +174,14 @@
             const avant = profil(id);
             if (!avant) throw new Error('Ce profil n’existe pas sur cet appareil.');
             const p = { ...avant };
-            for (const k of ['nom', 'avatar', 'palette', 'objectif', 'activites', 'archive', 'ton', 'sansObjectif']) if (Object.hasOwn(changements, k)) p[k] = changements[k];
+            for (const k of ['nom', 'avatar', 'palette', 'objectif', 'activites', 'archive', 'ton', 'sansObjectif', 'jeuxVus']) if (Object.hasOwn(changements, k)) p[k] = changements[k];
             p.nom = p.nom.trim();
             return ecrire(`profil/${id}`, p);
         }
         function creerProfil({ nom, avatar = '🦊', palette = 'lavande', ton = 'ludique' }) {
             if (profils(true).length >= 20) throw new Error('Ce coffre contient déjà 20 profils.');
             const id = uuid();
-            const p = { id, nom: nom.trim(), avatar, palette, ton, objectif: 4, activites: Object.keys(JEUX), archive: false, creeLe: jourLocal(maintenant()) };
+            const p = { id, nom: nom.trim(), avatar, palette, ton, objectif: 4, activites: Object.keys(JEUX), jeuxVus: Object.keys(JEUX), archive: false, creeLe: jourLocal(maintenant()) };
             ecrire(`profil/${id}`, p);
             ecrire('actif', id);
             return p;
@@ -189,7 +202,7 @@
             const cle = `activite/${profilId}/${jour}/${jeu}`;
             const avant = lire(cle);
             if (avant) return { gagne: false, deja: true, activite: avant };
-            const activite = { profil: profilId, jour, jeu, theme: JEUX[jeu].theme, pedagogique: p.activites.includes(jeu) };
+            const activite = { profil: profilId, jour, jeu, theme: JEUX[jeu].theme, pedagogique: activitesDe(p).includes(jeu) };
             ecrire(cle, activite);
             return { gagne: true, activite };
         }
@@ -307,12 +320,14 @@
                 const k = stockage.key(i);
                 if (['geo.preferences', 'geo.memoire', 'geo.stats', 'geo.partie', 'gameConfig', 'highscores',
                     'sutom.stats', 'sutom.daily', 'sutom.settings', 'sutom.recent', 'sutom.help-seen', 'sutom.game',
-                    'demineur.preferences', 'demineur.records', 'demineur.stats', 'slitherlink.serie', 'slitherlink.partie'].includes(k)
+                    'demineur.preferences', 'demineur.records', 'demineur.stats', 'slitherlink.serie', 'slitherlink.partie',
+                    'architecte.preferences', 'architecte.partie', 'architecte.records', 'architecte.stats',
+                    'solitaire.preferences', 'solitaire.stats', 'solitaire.stats.ouvert', 'solitaire.partie'].includes(k)
                     || k?.startsWith(`stats:${profil(id).nom}:`)) anciens.push(k);
             }
             let copies = 0;
             for (const k of anciens) {
-                const jeu = ['geo', 'sutom', 'demineur', 'slitherlink'].find(n => k.startsWith(n + '.')) ?? 'multiplication';
+                const jeu = ['geo', 'sutom', 'demineur', 'slitherlink', 'architecte', 'solitaire'].find(n => k.startsWith(n + '.')) ?? 'multiplication';
                 let cible = k;
                 if (k.startsWith('stats:')) cible = k.replace(`stats:${profil(id).nom}:`, 'stats:profil:');
                 const cle = `jeu/${id}/${jeu}/${encodeURIComponent(cible)}`;
@@ -323,7 +338,7 @@
         }
         return { lire, ecrire, cles, profils, profil, creerProfil, modifierProfil, choisir, noter, bilan, exporter, preparerExport, preparerImport, restaurer, stockageJeu, reprendreAncien, generation, alertes };
     }
-    const constantes = { VERSION, AVATARS, PALETTES, TONS, THEMES, JEUX, jourLocal, numeroJour, creerCoffre };
+    const constantes = { VERSION, AVATARS, PALETTES, TONS, THEMES, JEUX, activitesDe, jourLocal, numeroJour, creerCoffre };
     if (typeof module !== 'undefined' && module.exports) module.exports = constantes;
     global.Passeport = constantes;
     if (!global.document) return;
