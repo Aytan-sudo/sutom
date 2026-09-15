@@ -5,6 +5,11 @@ Site statique, sans build ni serveur, jouable hors ligne.
 
 **Jouer : https://aytan-sudo.github.io/sutom/**
 
+## Version 1.3.3 — Passeport 1.4.0
+
+- module commun du passeport 1.4.0, qui raccorde Démineur et Slitherlink au
+  thème Logique. Rien ne change dans le jeu.
+
 ## Version 1.3.2 — Passeport 1.3.0
 
 - module commun du passeport 1.3.0 (style sobre et objectif facultatif pour les

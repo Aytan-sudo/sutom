@@ -1,4 +1,4 @@
-/* Passeport 1.3.0 — source commune, distribuée par scripts/distribuer.mjs.
+/* Passeport 1.4.0 — source commune, distribuée par scripts/distribuer.mjs.
  * Aucun réseau. Une entrée indépendante par profil / jeu / journée évite
  * qu'une partie dans un autre onglet écrase les tampons de son voisin.
  */
@@ -22,7 +22,11 @@
         'geo-trouve-tout': { theme: 'geo', questions: 10, stockage: 'geo', nom: 'Géo Trouve-Tout' },
         html_multiplication: { theme: 'nombres', questions: 10, stockage: 'multiplication', nom: 'Multiplication' },
         // Dix mots acceptés par le dictionnaire dans la journée, sur plusieurs parties si besoin, ou un mot trouvé.
-        sutom: { theme: 'mots', questions: 10, stockage: 'sutom', nom: 'SUTOM' }
+        sutom: { theme: 'mots', questions: 10, stockage: 'sutom', nom: 'SUTOM' },
+        // Casse-tête : une grille réussie, ou l'effort compté à leur façon —
+        // dix parties jouées jusqu'au bout, trente traits posés dans la journée.
+        demineur: { theme: 'logique', questions: 10, stockage: 'demineur', nom: 'Démineur' },
+        slitherlink: { theme: 'logique', questions: 30, stockage: 'slitherlink', nom: 'Slitherlink' }
     };
     const ESPACES = Object.values(JEUX).map(j => j.stockage);
     const idValide = x => typeof x === 'string' && /^[a-zA-Z0-9_-]{8,64}$/.test(x);
@@ -302,12 +306,13 @@
             for (let i = 0; i < stockage.length; i++) {
                 const k = stockage.key(i);
                 if (['geo.preferences', 'geo.memoire', 'geo.stats', 'geo.partie', 'gameConfig', 'highscores',
-                    'sutom.stats', 'sutom.daily', 'sutom.settings', 'sutom.recent', 'sutom.help-seen', 'sutom.game'].includes(k)
+                    'sutom.stats', 'sutom.daily', 'sutom.settings', 'sutom.recent', 'sutom.help-seen', 'sutom.game',
+                    'demineur.preferences', 'demineur.records', 'demineur.stats', 'slitherlink.serie', 'slitherlink.partie'].includes(k)
                     || k?.startsWith(`stats:${profil(id).nom}:`)) anciens.push(k);
             }
             let copies = 0;
             for (const k of anciens) {
-                const jeu = k.startsWith('geo.') ? 'geo' : k.startsWith('sutom.') ? 'sutom' : 'multiplication';
+                const jeu = ['geo', 'sutom', 'demineur', 'slitherlink'].find(n => k.startsWith(n + '.')) ?? 'multiplication';
                 let cible = k;
                 if (k.startsWith('stats:')) cible = k.replace(`stats:${profil(id).nom}:`, 'stats:profil:');
                 const cle = `jeu/${id}/${jeu}/${encodeURIComponent(cible)}`;
