@@ -5,6 +5,11 @@ Site statique, sans build ni serveur, jouable hors ligne.
 
 **Jouer : https://aytan-sudo.github.io/sutom/**
 
+## Version 1.3.5 — Passeport 1.6.0
+
+- Module commun du passeport 1.6.0 : Polyominos et Mosaïcomino rejoignent le thème
+  Logique. Rien ne change dans le jeu.
+
 ## Version 1.3.4 — Passeport 1.5.0
 
 - Module commun du passeport 1.5.0 : L’Architecte et Solitaire rejoignent le thème

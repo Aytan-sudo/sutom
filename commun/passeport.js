@@ -1,4 +1,4 @@
-/* Passeport 1.5.0 — source commune, distribuée par scripts/distribuer.mjs.
+/* Passeport 1.6.0 — source commune, distribuée par scripts/distribuer.mjs.
  * Aucun réseau. Une entrée indépendante par profil / jeu / journée évite
  * qu'une partie dans un autre onglet écrase les tampons de son voisin.
  */
@@ -30,7 +30,10 @@
         // Une grille terminée (tous les murs posés), ou trente murs posés dans la journée.
         architecte: { theme: 'logique', questions: 30, stockage: 'architecte', nom: 'L’Architecte' },
         // Une partie gagnée, ou cinquante coups joués dans la journée.
-        solitaire: { theme: 'logique', questions: 50, stockage: 'solitaire', nom: 'Solitaire' }
+        solitaire: { theme: 'logique', questions: 50, stockage: 'solitaire', nom: 'Solitaire' },
+        // Une grille complétée, ou vingt pièces (tesselles) posées dans la journée.
+        polyominos: { theme: 'logique', questions: 20, stockage: 'polyominos', nom: 'Polyominos' },
+        mosaicomino: { theme: 'logique', questions: 20, stockage: 'mosaicomino', nom: 'Mosaïcomino' }
     };
     const ESPACES = Object.values(JEUX).map(j => j.stockage);
     // Un jeu raccordé après le dernier réglage d'un profil y entre d'office.
@@ -322,12 +325,14 @@
                     'sutom.stats', 'sutom.daily', 'sutom.settings', 'sutom.recent', 'sutom.help-seen', 'sutom.game',
                     'demineur.preferences', 'demineur.records', 'demineur.stats', 'slitherlink.serie', 'slitherlink.partie',
                     'architecte.preferences', 'architecte.partie', 'architecte.records', 'architecte.stats',
-                    'solitaire.preferences', 'solitaire.stats', 'solitaire.stats.ouvert', 'solitaire.partie'].includes(k)
+                    'solitaire.preferences', 'solitaire.stats', 'solitaire.stats.ouvert', 'solitaire.partie',
+                    'polyominos.preferences', 'polyominos.session', 'polyominos.statistiques',
+                    'mosaicomino.preferences', 'mosaicomino.session', 'mosaicomino.statistiques'].includes(k)
                     || k?.startsWith(`stats:${profil(id).nom}:`)) anciens.push(k);
             }
             let copies = 0;
             for (const k of anciens) {
-                const jeu = ['geo', 'sutom', 'demineur', 'slitherlink', 'architecte', 'solitaire'].find(n => k.startsWith(n + '.')) ?? 'multiplication';
+                const jeu = ['geo', 'sutom', 'demineur', 'slitherlink', 'architecte', 'solitaire', 'polyominos', 'mosaicomino'].find(n => k.startsWith(n + '.')) ?? 'multiplication';
                 let cible = k;
                 if (k.startsWith('stats:')) cible = k.replace(`stats:${profil(id).nom}:`, 'stats:profil:');
                 const cle = `jeu/${id}/${jeu}/${encodeURIComponent(cible)}`;

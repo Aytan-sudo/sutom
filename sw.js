@@ -14,7 +14,7 @@
 // puis servies depuis le cache, leur contenu ne changeant que lors d'une
 // régénération de data/ — qui s'accompagne alors d'un changement de VERSION.
 
-const VERSION = 'sutom-1.3.4';
+const VERSION = 'sutom-1.3.5';
 const SHELL = [
     './',
     'index.html',
