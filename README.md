@@ -5,6 +5,12 @@ Site statique, sans build ni serveur, jouable hors ligne.
 
 **Jouer : https://aytan-sudo.github.io/sutom/**
 
+## Version 1.3.8 — Passeport 1.7.0
+
+Module commun du passeport 1.7.0 : 2048 rejoint le thème Nombres, Snake ouvre le
+thème Aventure, Motamorphose le thème Mots, et Dames, Diamants, Laser & Miroirs
+et Untangle rejoignent le thème Logique. Rien ne change dans le jeu.
+
 ## Version 1.3.7
 
 - **les Règles s'ouvrent au début, et tiennent dans l'écran.** Deux défauts

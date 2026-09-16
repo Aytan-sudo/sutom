@@ -1,4 +1,4 @@
-/* Passeport 1.6.0 — source commune, distribuée par scripts/distribuer.mjs.
+/* Passeport 1.7.0 — source commune, distribuée par scripts/distribuer.mjs.
  * Aucun réseau. Une entrée indépendante par profil / jeu / journée évite
  * qu'une partie dans un autre onglet écrase les tampons de son voisin.
  */
@@ -33,9 +33,49 @@
         solitaire: { theme: 'logique', questions: 50, stockage: 'solitaire', nom: 'Solitaire' },
         // Une grille complétée, ou vingt pièces (tesselles) posées dans la journée.
         polyominos: { theme: 'logique', questions: 20, stockage: 'polyominos', nom: 'Polyominos' },
-        mosaicomino: { theme: 'logique', questions: 20, stockage: 'mosaicomino', nom: 'Mosaïcomino' }
+        mosaicomino: { theme: 'logique', questions: 20, stockage: 'mosaicomino', nom: 'Mosaïcomino' },
+        // L'objectif du plateau (2048 en 4×4) ou la grille du jour menée à son
+        // terme, sinon cent coups glissés dans la journée — une demi-partie.
+        '2048': { theme: 'nombres', questions: 100, stockage: '2048', nom: '2048' },
+        // Arcade : un record battu, ou vingt fruits mangés dans la journée.
+        snake: { theme: 'aventure', questions: 20, stockage: 'snake', nom: 'Snake' },
+        // Une chaîne de mots trouvée, ou dix mots acceptés dans la journée.
+        motamorphose: { theme: 'mots', questions: 10, stockage: 'motamorphose', nom: 'Motamorphose' },
+        // Une partie gagnée, ou vingt coups joués dans la journée.
+        Dames: { theme: 'logique', questions: 20, stockage: 'dames', nom: 'Dames' },
+        // Le défi du jour rempli, ou vingt échanges dans la journée.
+        diamants: { theme: 'logique', questions: 20, stockage: 'diamants', nom: 'Diamants' },
+        // Le cristal atteint, ou vingt miroirs pivotés dans la journée.
+        'laser-mirror': { theme: 'logique', questions: 20, stockage: 'lasers', nom: 'Laser & Miroirs' },
+        // Une grille démêlée, ou vingt sommets déposés dans la journée.
+        untangle: { theme: 'logique', questions: 20, stockage: 'untangle', nom: 'Untangle' }
     };
     const ESPACES = Object.values(JEUX).map(j => j.stockage);
+    // Les clés que chaque jeu écrit en mode invité, rangées par espace : c'est
+    // ce que `reprendreAncien` recopie dans un profil. Le séparateur est '.'
+    // ou ':' selon les jeux — leur convention, pas la nôtre : on les nomme donc
+    // en clair plutôt que de deviner l'espace à partir d'un préfixe.
+    const ANCIENNES_CLES = {
+        geo: ['geo.preferences', 'geo.memoire', 'geo.stats', 'geo.partie'],
+        multiplication: ['gameConfig', 'highscores'],
+        sutom: ['sutom.stats', 'sutom.daily', 'sutom.settings', 'sutom.recent', 'sutom.help-seen', 'sutom.game'],
+        demineur: ['demineur.preferences', 'demineur.records', 'demineur.stats'],
+        slitherlink: ['slitherlink.serie', 'slitherlink.partie'],
+        architecte: ['architecte.preferences', 'architecte.partie', 'architecte.records', 'architecte.stats'],
+        solitaire: ['solitaire.preferences', 'solitaire.stats', 'solitaire.stats.ouvert', 'solitaire.partie'],
+        polyominos: ['polyominos.preferences', 'polyominos.session', 'polyominos.statistiques'],
+        mosaicomino: ['mosaicomino.preferences', 'mosaicomino.session', 'mosaicomino.statistiques'],
+        '2048': ['2048.preferences', '2048.records', '2048.partie', '2048.defi'],
+        snake: ['snake.preferences', 'snake.records', 'snake.history', 'snake.session'],
+        motamorphose: ['motamorphose:v1', 'motamorphose:longueur', 'motamorphose:theme'],
+        dames: ['dames.preferences', 'dames.stats', 'dames.partie'],
+        diamants: ['diamants:reglages', 'diamants:mode', 'diamants:stats', 'diamants:jour', 'diamants:libre'],
+        lasers: ['laser-mirror:difficulty', 'laser-mirror:sounds', 'laser-mirror:vibration',
+            'laser-mirror:theme', 'laser-mirror:stats', 'laser-mirror:current-game'],
+        untangle: ['untangle.preferences', 'untangle.partie', 'untangle.statistiques']
+    };
+    const ESPACE_DE_CLE = new Map(Object.entries(ANCIENNES_CLES)
+        .flatMap(([espace, cles]) => cles.map(c => [c, espace])));
     // Un jeu raccordé après le dernier réglage d'un profil y entre d'office.
     // `jeuxVus` retient les jeux que l'administrateur a pu cocher ou décocher ;
     // un profil plus ancien que ce champ n'a connu que les deux premiers jeux.
@@ -318,23 +358,19 @@
         }
         function reprendreAncien(id) {
             if (!profil(id)) throw new Error('Profil inconnu.');
+            // Les palmarès de Multiplication portent le prénom du joueur dans
+            // la clé ; ils se reconnaissent au préfixe, pas à la liste.
+            const prefixeStats = `stats:${profil(id).nom}:`;
             const anciens = [];
             for (let i = 0; i < stockage.length; i++) {
                 const k = stockage.key(i);
-                if (['geo.preferences', 'geo.memoire', 'geo.stats', 'geo.partie', 'gameConfig', 'highscores',
-                    'sutom.stats', 'sutom.daily', 'sutom.settings', 'sutom.recent', 'sutom.help-seen', 'sutom.game',
-                    'demineur.preferences', 'demineur.records', 'demineur.stats', 'slitherlink.serie', 'slitherlink.partie',
-                    'architecte.preferences', 'architecte.partie', 'architecte.records', 'architecte.stats',
-                    'solitaire.preferences', 'solitaire.stats', 'solitaire.stats.ouvert', 'solitaire.partie',
-                    'polyominos.preferences', 'polyominos.session', 'polyominos.statistiques',
-                    'mosaicomino.preferences', 'mosaicomino.session', 'mosaicomino.statistiques'].includes(k)
-                    || k?.startsWith(`stats:${profil(id).nom}:`)) anciens.push(k);
+                if (ESPACE_DE_CLE.has(k) || k?.startsWith(prefixeStats)) anciens.push(k);
             }
             let copies = 0;
             for (const k of anciens) {
-                const jeu = ['geo', 'sutom', 'demineur', 'slitherlink', 'architecte', 'solitaire', 'polyominos', 'mosaicomino'].find(n => k.startsWith(n + '.')) ?? 'multiplication';
+                const jeu = ESPACE_DE_CLE.get(k) ?? 'multiplication';
                 let cible = k;
-                if (k.startsWith('stats:')) cible = k.replace(`stats:${profil(id).nom}:`, 'stats:profil:');
+                if (k.startsWith('stats:')) cible = k.replace(prefixeStats, 'stats:profil:');
                 const cle = `jeu/${id}/${jeu}/${encodeURIComponent(cible)}`;
                 const valeur = stockage.getItem(k);
                 if (lire(cle) === null && verifier(cle, valeur)) { ecrire(cle, valeur); copies++; }
