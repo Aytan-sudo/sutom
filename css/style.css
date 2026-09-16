@@ -279,6 +279,13 @@ main {
     color: var(--text);
     padding: 1.5rem;
     width: min(92vw, 26rem);
+    /* Les Règles sont plus hautes qu'un iPhone SE (549 px dans Safari d'iOS
+       26) : sans hauteur maximale, le dialogue débordait de l'écran des deux
+       côtés et s'ouvrait cadré sur son milieu. Il défile maintenant sur
+       lui-même, et js/ui.js le remet au début à chaque ouverture. */
+    max-height: 88dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
     font-family: inherit;
 }
 
