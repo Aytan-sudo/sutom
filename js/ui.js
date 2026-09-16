@@ -201,6 +201,13 @@ export function showMessage(text, duration = 2200) {
 
 export function openDialog(dialog) {
     if (!dialog.open) dialog.showModal();
+    // showModal() donne le focus au premier élément focalisable : dans les
+    // Règles c'est le lien de crédit, tout en bas, et le dialogue s'ouvrait
+    // donc déjà défilé jusqu'à lui, titre hors de l'écran. Le focus va au
+    // dialogue lui-même, qui se lit depuis le début.
+    dialog.setAttribute('tabindex', '-1');
+    dialog.focus();
+    dialog.scrollTop = 0;
 }
 
 export function closeDialog(dialog) {

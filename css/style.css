@@ -282,6 +282,10 @@ main {
     font-family: inherit;
 }
 
+/* Le dialogue reçoit le focus à l'ouverture pour se lire depuis le début
+   (js/ui.js) : il ne faut pas pour autant le cercler comme un bouton. */
+.dialog:focus { outline: none; }
+
 .dialog::backdrop {
     background: var(--backdrop);
 }
