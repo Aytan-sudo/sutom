@@ -5,6 +5,20 @@ Site statique, sans build ni serveur, jouable hors ligne.
 
 **Jouer : https://aytan-sudo.github.io/sutom/**
 
+## Version 1.3.7
+
+- **les Règles s'ouvrent au début, et tiennent dans l'écran.** Deux défauts
+  pour un seul symptôme. `showModal()` donne le focus au premier élément
+  focalisable — ici le lien de crédit « Lexique 3.83 », tout en bas : le
+  dialogue s'ouvrait donc défilé jusqu'à lui, titre hors de l'écran, pour un
+  joueur qui le voyait pour la première fois. Et le dialogue n'avait ni hauteur
+  maximale ni défilement propre : plus haut qu'un iPhone SE, il débordait des
+  deux côtés. Le focus va désormais au dialogue lui-même, qui se lit depuis son
+  titre, et le dialogue se limite à `88dvh` en défilant sur lui-même.
+
+  La première correction paraissait suffire sur iPhone 15, où le texte tient
+  tout entier. C'est le SE, dans le simulateur iOS, qui a montré le reste.
+
 ## Version 1.3.5 — Passeport 1.6.0
 
 - Module commun du passeport 1.6.0 : Polyominos et Mosaïcomino rejoignent le thème
