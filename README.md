@@ -5,6 +5,12 @@ Site statique, sans build ni serveur, jouable hors ligne.
 
 **Jouer : https://aytan-sudo.github.io/sutom/**
 
+## Version 1.3.9 — Passeport 1.8.0
+
+Module commun du passeport 1.8.0 : **Maze for Adventurers** rejoint le thème
+Aventure, aux côtés de Snake. Toute la collection est désormais raccordée. Rien
+ne change dans le jeu.
+
 ## Version 1.3.8 — Passeport 1.7.0
 
 Module commun du passeport 1.7.0 : 2048 rejoint le thème Nombres, Snake ouvre le
